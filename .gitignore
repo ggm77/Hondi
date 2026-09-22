@@ -46,7 +46,6 @@ application-prod.yml
 
 GEMINI.md
 CLAUDE.md
-Agents.md
 
 /src/main/resources/static/
 
