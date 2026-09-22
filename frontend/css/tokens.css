@@ -60,7 +60,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body, #root {
+html, body, #app {
   height: 100%;
 }
 

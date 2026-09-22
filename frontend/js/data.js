@@ -1,6 +1,4 @@
-import type { Match, MapPost, Post } from '../types'
-
-export const posts: Post[] = [
+export const posts = [
   {
     time: '오늘 14:00',
     need: '1명 더',
@@ -27,13 +25,13 @@ export const posts: Post[] = [
   },
 ]
 
-export const mapPosts: MapPost[] = [
+export const mapPosts = [
   { time: '오늘 15:10', need: '1명 더', dist: '내 위치에서 1.2km', route: '제주공항 → 애월 한담해변' },
   { time: '오늘 14:00', need: '1명 더', dist: '내 위치에서 1.2km', route: '제주공항 → 성산일출봉' },
   { time: '오늘 16:30', need: '2명 더', dist: '22km', route: '서귀포 버스터미널 → 사려니숲길' },
 ]
 
-export const matches: Match[] = [
+export const matches = [
   {
     initial: '수',
     name: '수민',
