@@ -10,11 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 필터에 JWT 검증 과정 추가
@@ -47,9 +49,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        //권한 정보가 없는 토큰(리프레시 토큰)은 액세스 토큰으로 사용 불가, 익명으로 진행
+        final List<SimpleGrantedAuthority> authorities = jwtProvider.getAuthorities(claims);
+        if (authorities.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         //이미 JWT 검증으로 인증 완료됨
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(claims.getSubject(), null, jwtProvider.getAuthorities(claims))
+                new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities)
         );
 
         filterChain.doFilter(request, response);
