@@ -1,39 +1,40 @@
 package com.seohamin.hondi.support;
 
-import com.jayway.jsonpath.JsonPath;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.seohamin.hondi.domain.user.dto.oauth.UserOauth2AccountsRequestDto;
+import com.seohamin.hondi.domain.user.entity.Gender;
+import com.seohamin.hondi.domain.user.entity.User;
+import com.seohamin.hondi.domain.user.repository.UserRepository;
+import com.seohamin.hondi.global.auth.jwt.JwtProvider;
+import org.springframework.stereotype.Component;
 
 /**
- * 테스트에서 회원가입 후 액세스 토큰을 얻기 위한 헬퍼
+ * 테스트에서 회원가입 완료된 유저와 액세스 토큰을 만들기 위한 헬퍼
  */
-public final class TestAuthHelper {
+@Component
+public class TestAuthHelper {
 
-    private TestAuthHelper() {}
+    private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
-    public static String signup(
-            final MockMvc mockMvc,
-            final String email,
-            final String nickname,
-            final String gender
-    ) throws Exception {
-        final String body = """
-                {"email":"%s","password":"password123","nickname":"%s","gender":"%s"}
-                """.formatted(email, nickname, gender);
-
-        final String response = mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-
-        return JsonPath.read(response, "$.accessToken");
+    public TestAuthHelper(final UserRepository userRepository, final JwtProvider jwtProvider) {
+        this.userRepository = userRepository;
+        this.jwtProvider = jwtProvider;
     }
 
-    public static String bearer(final String accessToken) {
-        return "Bearer " + accessToken;
+    //회원가입 완료된 유저 생성
+    public User createUser(final String nickname, final Gender gender) {
+        final User user = new User(UserOauth2AccountsRequestDto.builder()
+                .provider("google")
+                .providerUserId(nickname)
+                .build());
+        user.updateNickname(nickname);
+        user.updateGender(gender);
+        user.updateRoleToUser();
+        return userRepository.save(user);
+    }
+
+    //유저의 Authorization 헤더 값
+    public String bearer(final User user) {
+        return "Bearer " + jwtProvider.createAccessToken(user.getId(), user.getRole().getKey());
     }
 }

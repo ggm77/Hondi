@@ -1,14 +1,19 @@
 package com.seohamin.hondi.domain.user.entity;
 
+import com.seohamin.hondi.domain.user.dto.oauth.UserOauth2AccountsRequestDto;
+import com.seohamin.hondi.domain.user.entity.oauth.UserOauth2Accounts;
 import com.seohamin.hondi.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 유저 정보를 저장하는 엔티티
+ * OAuth로 처음 가입하면 NOT_REGISTERED 상태이고, 닉네임과 성별을 등록하면 USER가 됨
  */
 @Entity
 @Getter
@@ -16,7 +21,6 @@ import lombok.NoArgsConstructor;
 @Table(
         name = "users",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
                 @UniqueConstraint(name = "uk_users_nickname", columnNames = "nickname")
         }
 )
@@ -27,26 +31,22 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //로그인용 이메일 (중복 허용 안됨)
-    @Column(length = 255, nullable = false)
-    private String email;
-
-    //암호화된 비밀번호
-    @Column(length = 255, nullable = false)
-    private String password;
-
-    //닉네임 (중복 허용 안됨)
-    @Column(length = 20, nullable = false)
+    //닉네임 (중복 허용 안됨, 회원가입 완료 전에는 null)
+    @Column(length = 20, nullable = true)
     private String nickname;
 
-    //동성 매칭에 사용하는 성별
-    @Enumerated(EnumType.STRING)
-    @Column(length = 10, nullable = false)
-    private Gender gender;
+    //프로필 사진 url (OAuth에서 받아옴)
+    @Column(length = 2048, nullable = true)
+    private String profileImage;
 
-    //본인 인증된 전화번호 (E.164)
-    @Column(length = 15, nullable = true)
-    private String phoneNumber;
+    //실제 이름 (OAuth에서 받아옴)
+    @Column(length = 255, nullable = true)
+    private String name;
+
+    //동성 매칭에 사용하는 성별 (회원가입 완료 전에는 null)
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10, nullable = true)
+    private Gender gender;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
@@ -60,18 +60,14 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer totalReviews;
 
-    @Builder
-    public User(
-            final String email,
-            final String password,
-            final String nickname,
-            final Gender gender
-    ){
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.gender = gender;
-        this.role = Role.NOT_VERIFIED;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserOauth2Accounts> userOauth2Accounts = new ArrayList<>();
+
+    //oauth 회원가입용 생성자
+    public User(final UserOauth2AccountsRequestDto userOauth2AccountsRequestDto){
+        this.profileImage = userOauth2AccountsRequestDto.getProfileImage();
+        this.name = userOauth2AccountsRequestDto.getName();
+        this.role = Role.NOT_REGISTERED;
         this.totalScore = 0;
         this.totalReviews = 0;
     }
@@ -81,14 +77,14 @@ public class User extends BaseTimeEntity {
         this.nickname = newNickname;
     }
 
-    //비밀번호 변경 (암호화된 값)
-    public void updatePassword(final String encodedPassword){
-        this.password = encodedPassword;
+    //프로필 사진 변경
+    public void updateProfileImage(final String newProfileImage){
+        this.profileImage = newProfileImage;
     }
 
-    //전화번호 변경
-    public void updatePhoneNumber(final String phoneNumber){
-        this.phoneNumber = phoneNumber;
+    //성별 변경
+    public void updateGender(final Gender gender){
+        this.gender = gender;
     }
 
     //role을 일반 유저로 변경

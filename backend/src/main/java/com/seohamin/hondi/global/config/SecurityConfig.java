@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -54,8 +55,12 @@ public class SecurityConfig {
                         // 어드민 API는 어드민만 사용 가능
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
-                        // 그 외 요청은 인증 필요
-                        .anyRequest().authenticated()
+                        // 회원가입 완료 전(NOT_REGISTERED) 유저도 사용 가능한 API
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/me").authenticated()
+
+                        // 그 외 요청은 회원가입 완료된 유저만 사용 가능
+                        .anyRequest().hasAnyRole("USER", "ADMIN")
                 )
 
                 // 요청 헤더의 JWT 검증

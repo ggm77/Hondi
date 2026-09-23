@@ -5,6 +5,8 @@ import com.seohamin.hondi.domain.user.dto.UserResponseDto;
 import com.seohamin.hondi.domain.user.service.UserService;
 import com.seohamin.hondi.global.exception.CustomException;
 import com.seohamin.hondi.global.exception.constants.ExceptionCode;
+import com.seohamin.hondi.global.validation.Create;
+import com.seohamin.hondi.global.validation.Update;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +21,18 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
+
+    //회원가입 API, 프론트에서 OAuth로 로그인 후 role이 NOT_REGISTERED면 이 API호출
+    @PostMapping("/user")
+    public ResponseEntity<UserResponseDto> createUser(
+            @AuthenticationPrincipal final String userIdStr,
+            @Validated(Create.class) @RequestBody final UserRequestDto userRequestDto
+    ){
+
+        final Long userId = Long.parseLong(userIdStr);
+
+        return ResponseEntity.ok(userService.createUser(userRequestDto, userId));
+    }
 
     //내 정보 조회 API
     @GetMapping("/user/me")
@@ -48,7 +62,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable final Long id,
             @AuthenticationPrincipal final String userIdStr,
-            @Validated @RequestBody final UserRequestDto userRequestDto
+            @Validated(Update.class) @RequestBody final UserRequestDto userRequestDto
     ){
 
         final Long userId = Long.parseLong(userIdStr);

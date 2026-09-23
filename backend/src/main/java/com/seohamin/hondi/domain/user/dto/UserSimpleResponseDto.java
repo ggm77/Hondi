@@ -12,6 +12,7 @@ public class UserSimpleResponseDto {
 
     private final Long id;
     private final String nickname;
+    private final String profileImage;
     private final Gender gender;
     private final Integer totalScore;
     private final Integer totalReviews;
@@ -19,6 +20,7 @@ public class UserSimpleResponseDto {
     public UserSimpleResponseDto(final User user) {
         this.id = user.getId();
         this.nickname = user.getNickname();
+        this.profileImage = user.getProfileImage();
         this.gender = user.getGender();
         this.totalScore = user.getTotalScore();
         this.totalReviews = user.getTotalReviews();

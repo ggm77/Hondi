@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Role {
 
-    NOT_VERIFIED("ROLE_NOT_VERIFIED", "본인 인증이 되지 않은 유저"),
+    NOT_REGISTERED("ROLE_NOT_REGISTERED", "회원가입이 끝나지 않은 유저"),
     USER("ROLE_USER", "일반 사용자"),
     ADMIN("ROLE_ADMIN", "관리자");
 

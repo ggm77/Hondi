@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @Getter
 public class UserResponseDto {
     private final Long id;
-    private final String email;
     private final String nickname;
+    private final String profileImage;
+    private final String name;
     private final Gender gender;
-    private final String phoneNumber;
     private final Role role;
     private final Integer totalScore;
     private final Integer totalReviews;
@@ -23,20 +23,20 @@ public class UserResponseDto {
     @Builder
     private UserResponseDto(
             final Long id,
-            final String email,
             final String nickname,
+            final String profileImage,
+            final String name,
             final Gender gender,
-            final String phoneNumber,
             final Role role,
             final Integer totalScore,
             final Integer totalReviews,
             final LocalDateTime createdAt
     ) {
         this.id = id;
-        this.email = email;
         this.nickname = nickname;
+        this.profileImage = profileImage;
+        this.name = name;
         this.gender = gender;
-        this.phoneNumber = phoneNumber;
         this.role = role;
         this.totalScore = totalScore;
         this.totalReviews = totalReviews;
@@ -45,10 +45,10 @@ public class UserResponseDto {
 
     public UserResponseDto(final User user){
         this.id = user.getId();
-        this.email = user.getEmail();
         this.nickname = user.getNickname();
+        this.profileImage = user.getProfileImage();
+        this.name = user.getName();
         this.gender = user.getGender();
-        this.phoneNumber = user.getPhoneNumber();
         this.role = user.getRole();
         this.totalScore = user.getTotalScore();
         this.totalReviews = user.getTotalReviews();
@@ -59,10 +59,10 @@ public class UserResponseDto {
     public UserResponseDto removeSensitiveData(){
         return UserResponseDto.builder()
                 .id(this.id)
-                .email(null)
                 .nickname(this.nickname)
+                .profileImage(this.profileImage)
+                .name(null)
                 .gender(this.gender)
-                .phoneNumber(null)
                 .role(this.role)
                 .totalScore(this.totalScore)
                 .totalReviews(this.totalReviews)
