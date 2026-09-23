@@ -1,5 +1,7 @@
 package com.seohamin.hondi.domain.ride.service.participant;
 
+import com.seohamin.hondi.domain.chat.entity.ChatType;
+import com.seohamin.hondi.domain.chat.service.ChatService;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantDecisionRequestDto;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantRequestDto;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantResponseDto;
@@ -30,6 +32,7 @@ public class RideParticipantService {
     private final RideRepository rideRepository;
     private final RideParticipantRepository rideParticipantRepository;
     private final UserRepository userRepository;
+    private final ChatService chatService;
 
     /**
      * 모집글에 참여 신청하는 메서드
@@ -133,6 +136,7 @@ public class RideParticipantService {
                 assertRecruiting(ride);
                 ride.increaseCount();
                 participant.accept();
+                chatService.sendSystemChat(ride, ChatType.ENTER, participant.getUser().getNickname() + "님이 참여했어요.");
             }
             case REJECTED -> participant.reject();
             default -> throw new CustomException(ExceptionCode.INVALID_PARTICIPANT_STATUS);
@@ -170,6 +174,7 @@ public class RideParticipantService {
                 }
                 ride.decreaseCount();
                 participant.leave();
+                chatService.sendSystemChat(ride, ChatType.EXIT, participant.getUser().getNickname() + "님이 나갔어요.");
             }
             default -> throw new CustomException(ExceptionCode.INVALID_PARTICIPANT_STATUS);
         }

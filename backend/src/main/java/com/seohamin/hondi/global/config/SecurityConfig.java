@@ -49,7 +49,8 @@ public class SecurityConfig {
                                 "/ready",
                                 "/api/swagger",
                                 "/api/swagger-ui/**",
-                                "/api/v1/auth/**"
+                                "/api/v1/auth/**",
+                                "/ws/**" //웹소켓 핸드셰이크 (인증은 STOMP CONNECT에서 처리)
                         ).permitAll()
 
                         // 어드민 API는 어드민만 사용 가능

@@ -1,5 +1,7 @@
 package com.seohamin.hondi.domain.ride.service;
 
+import com.seohamin.hondi.domain.chat.entity.ChatType;
+import com.seohamin.hondi.domain.chat.service.ChatService;
 import com.seohamin.hondi.domain.ride.dto.RideMyStatus;
 import com.seohamin.hondi.domain.ride.dto.RideRequestDto;
 import com.seohamin.hondi.domain.ride.dto.RideResponseDto;
@@ -29,6 +31,7 @@ public class RideService {
     private final RideParticipantRepository rideParticipantRepository;
     private final UserRepository userRepository;
     private final ServiceAreaValidator serviceAreaValidator;
+    private final ChatService chatService;
 
     /**
      * 동승 모집글을 생성하는 메서드
@@ -144,6 +147,7 @@ public class RideService {
         assertEditable(ride);
 
         ride.cancel();
+        chatService.sendSystemChat(ride, ChatType.SYSTEM, "방장이 모집을 취소했어요.");
     }
 
     /**

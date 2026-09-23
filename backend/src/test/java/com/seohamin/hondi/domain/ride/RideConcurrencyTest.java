@@ -1,5 +1,6 @@
 package com.seohamin.hondi.domain.ride;
 
+import com.seohamin.hondi.domain.chat.repository.ChatRepository;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantDecisionRequestDto;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantRequestDto;
 import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
@@ -51,8 +52,12 @@ class RideConcurrencyTest {
     @Autowired
     private TestAuthHelper testAuthHelper;
 
+    @Autowired
+    private ChatRepository chatRepository;
+
     @AfterEach
     void tearDown() {
+        chatRepository.deleteAll();
         rideParticipantRepository.deleteAll();
         rideRepository.deleteAll();
         userRepository.deleteAll();

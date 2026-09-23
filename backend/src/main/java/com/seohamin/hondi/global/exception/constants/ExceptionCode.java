@@ -28,6 +28,8 @@ public enum ExceptionCode {
     RIDE_REJECTED(HttpStatus.BAD_REQUEST, "참여가 거절된 모집글입니다."),
     PARTICIPANT_NOT_EXIST(HttpStatus.BAD_REQUEST, "참여 신청 정보가 존재하지 않습니다."),
     INVALID_PARTICIPANT_STATUS(HttpStatus.BAD_REQUEST, "처리할 수 없는 참여 상태입니다."),
+    CHAT_ROOM_NOT_EXIST(HttpStatus.BAD_REQUEST, "채팅방이 존재하지 않습니다."),
+    CHAT_ROOM_NOT_JOINED(HttpStatus.FORBIDDEN, "채팅방에 참가하고 있지 않습니다."),
 
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 

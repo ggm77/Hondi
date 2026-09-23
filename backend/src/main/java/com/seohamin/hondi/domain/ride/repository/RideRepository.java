@@ -59,6 +59,8 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             Pageable pageable
     );
 
+    boolean existsByIdAndHostId(Long id, Long hostId);
+
     //내가 방장인 글
     @Query("SELECT r FROM Ride r JOIN FETCH r.host WHERE r.host.id = :hostId ORDER BY r.departureAt DESC")
     List<Ride> findByHostId(@Param("hostId") Long hostId);
