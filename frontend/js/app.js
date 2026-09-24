@@ -83,8 +83,14 @@ function renderOverlay() {
 function go(screen) {
   state.screen = screen
   state.sheet = null
+  if (location.hash.slice(1) !== screen) location.hash = screen
   window.scrollTo({ top: 0 })
   render()
+}
+
+function screenFromHash() {
+  const screen = location.hash.slice(1)
+  return SCREENS[screen] ? screen : 'onboarding'
 }
 
 function flash(message) {
@@ -234,4 +240,10 @@ document.addEventListener('keydown', (e) => {
   }
 })
 
+window.addEventListener('hashchange', () => {
+  const screen = screenFromHash()
+  if (screen !== state.screen) go(screen)
+})
+
+state.screen = screenFromHash()
 render()
