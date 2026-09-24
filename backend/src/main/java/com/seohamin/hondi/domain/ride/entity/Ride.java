@@ -73,10 +73,6 @@ public class Ride extends BaseTimeEntity {
     private Integer currentCount;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 10, nullable = false)
-    private GenderPolicy genderPolicy;
-
-    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private RideStatus status;
 
@@ -98,7 +94,6 @@ public class Ride extends BaseTimeEntity {
             final BigDecimal destLon,
             final LocalDateTime departureAt,
             final Integer capacity,
-            final GenderPolicy genderPolicy,
             final String memo
     ){
         this.host = host;
@@ -111,7 +106,6 @@ public class Ride extends BaseTimeEntity {
         this.departureAt = departureAt;
         this.capacity = capacity;
         this.currentCount = 1;
-        this.genderPolicy = genderPolicy;
         this.status = RideStatus.RECRUITING;
         this.memo = memo;
     }

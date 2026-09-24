@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.ride.dto;
 
-import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
@@ -23,7 +22,6 @@ public class RideResponseDto {
     private final LocalDateTime departureAt;
     private final Integer capacity;
     private final Integer currentCount;
-    private final GenderPolicy genderPolicy;
     private final RideStatus status;
     private final String memo;
     private final LocalDateTime createdAt;
@@ -50,7 +48,6 @@ public class RideResponseDto {
         this.departureAt = ride.getDepartureAt();
         this.capacity = ride.getCapacity();
         this.currentCount = ride.getCurrentCount();
-        this.genderPolicy = ride.getGenderPolicy();
         this.status = ride.getStatus();
         this.memo = ride.getMemo();
         this.createdAt = ride.getCreatedAt();

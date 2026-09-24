@@ -47,7 +47,7 @@ class RideFlowTest {
     }
 
     //공항 -> 성산일출봉 모집글 생성
-    private long createRide(final int capacity, final String genderPolicy) throws Exception {
+    private long createRide(final int capacity) throws Exception {
         final String response = mockMvc.perform(post("/api/v1/ride")
                         .header("Authorization", testAuthHelper.bearer(host))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -55,9 +55,9 @@ class RideFlowTest {
                                 {
                                   "originName":"제주국제공항","originLat":33.507000,"originLon":126.493000,
                                   "destName":"성산일출봉","destLat":33.458100,"destLon":126.942500,
-                                  "departureAt":"%s","capacity":%d,"genderPolicy":"%s","memo":"3번 게이트 앞"
+                                  "departureAt":"%s","capacity":%d,"memo":"3번 게이트 앞"
                                 }
-                                """.formatted(departureAt, capacity, genderPolicy)))
+                                """.formatted(departureAt, capacity)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RECRUITING"))
                 .andExpect(jsonPath("$.currentCount").value(1))
@@ -91,7 +91,7 @@ class RideFlowTest {
 
     @Test
     void 비슷한_경로를_검색하면_추천된다() throws Exception {
-        final long rideId = createRide(4, "ANY");
+        final long rideId = createRide(4);
 
         //공항 근처에서 성산 근처로 가는 사람이 검색
         mockMvc.perform(get("/api/v1/rides/match")
@@ -114,26 +114,8 @@ class RideFlowTest {
     }
 
     @Test
-    void 동성모집글은_성별이_다르면_추천도_신청도_불가() throws Exception {
-        final long rideId = createRide(4, "SAME");
-
-        mockMvc.perform(get("/api/v1/rides/match")
-                        .header("Authorization", testAuthHelper.bearer(other))
-                        .param("originLat", "33.507000").param("originLon", "126.493000")
-                        .param("destLat", "33.458100").param("destLon", "126.942500")
-                        .param("departureAt", departureAt))
-                .andExpect(jsonPath("$.rides", hasSize(0)));
-
-        join(rideId, other)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("GENDER_POLICY_MISMATCH"));
-
-        joinAndGetId(rideId, guest);
-    }
-
-    @Test
     void 신청_수락하면_인원이_차고_나가면_다시_모집() throws Exception {
-        final long rideId = createRide(2, "ANY");
+        final long rideId = createRide(2);
         final long participantId = joinAndGetId(rideId, guest);
 
         //중복 신청 불가
@@ -176,7 +158,7 @@ class RideFlowTest {
 
     @Test
     void 거절된_사람은_다시_신청_불가() throws Exception {
-        final long rideId = createRide(4, "ANY");
+        final long rideId = createRide(4);
         final long participantId = joinAndGetId(rideId, other);
 
         decide(rideId, participantId, host, "REJECTED")
@@ -189,7 +171,7 @@ class RideFlowTest {
 
     @Test
     void 방장은_모집글을_수정하고_취소할_수_있다() throws Exception {
-        final long rideId = createRide(4, "ANY");
+        final long rideId = createRide(4);
 
         mockMvc.perform(patch("/api/v1/ride/" + rideId)
                         .header("Authorization", testAuthHelper.bearer(host))
@@ -218,7 +200,7 @@ class RideFlowTest {
                                 {
                                   "originName":"서울역","originLat":37.554600,"originLon":126.970600,
                                   "destName":"성산일출봉","destLat":33.458100,"destLon":126.942500,
-                                  "departureAt":"%s","capacity":4,"genderPolicy":"ANY"
+                                  "departureAt":"%s","capacity":4
                                 }
                                 """.formatted(departureAt)))
                 .andExpect(status().isBadRequest())
@@ -227,7 +209,7 @@ class RideFlowTest {
 
     @Test
     void 내_모집글과_참여글_목록() throws Exception {
-        final long rideId = createRide(4, "ANY");
+        final long rideId = createRide(4);
         joinAndGetId(rideId, guest);
 
         mockMvc.perform(get("/api/v1/rides/me").header("Authorization", testAuthHelper.bearer(host)))

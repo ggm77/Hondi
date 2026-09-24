@@ -43,7 +43,7 @@ public class User extends BaseTimeEntity {
     @Column(length = 255, nullable = true)
     private String name;
 
-    //동성 매칭에 사용하는 성별 (회원가입 완료 전에는 null)
+    //성별 (회원가입 완료 전에는 null)
     @Enumerated(EnumType.STRING)
     @Column(length = 10, nullable = true)
     private Gender gender;

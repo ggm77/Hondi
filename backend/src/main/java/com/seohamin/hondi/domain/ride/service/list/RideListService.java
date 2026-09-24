@@ -43,7 +43,7 @@ public class RideListService {
 
     /**
      * 출발지, 도착지, 시간이 비슷한 모집글을 점수 높은 순으로 추천하는 메서드
-     * 자기 글, 참여 불가능한(동성 조건) 글은 제외
+     * 자기 글은 제외
      * @param originLat 출발지 위도
      * @param originLon 출발지 경도
      * @param destLat 도착지 위도

@@ -3,7 +3,6 @@ package com.seohamin.hondi.domain.ride;
 import com.seohamin.hondi.domain.chat.repository.ChatRepository;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantDecisionRequestDto;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantRequestDto;
-import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.entity.participant.ParticipantStatus;
@@ -73,7 +72,6 @@ class RideConcurrencyTest {
                 .destName("성산일출봉").destLat(new BigDecimal("33.458100")).destLon(new BigDecimal("126.942500"))
                 .departureAt(LocalDateTime.now().plusHours(1))
                 .capacity(2)
-                .genderPolicy(GenderPolicy.ANY)
                 .build());
 
         final int requestCount = 5;

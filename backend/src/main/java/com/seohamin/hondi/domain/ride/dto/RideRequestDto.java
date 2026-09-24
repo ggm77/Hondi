@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.ride.dto;
 
-import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
 import com.seohamin.hondi.global.validation.Create;
 import com.seohamin.hondi.global.validation.Update;
 import jakarta.validation.constraints.*;
@@ -45,9 +44,6 @@ public class RideRequestDto {
     @Min(value = 2, groups = {Create.class, Update.class})
     @Max(value = 6, groups = {Create.class, Update.class})
     private Integer capacity;
-
-    @NotNull(groups = Create.class)
-    private GenderPolicy genderPolicy;
 
     @Size(max = 500, groups = {Create.class, Update.class})
     private String memo;

@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.ride.service.matching;
 
-import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.global.util.LatLonUtil;
@@ -11,7 +10,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -102,15 +100,9 @@ public class RideMatcher {
 
     /**
      * 유저가 모집글에 참여 가능한지 확인하는 메서드
-     * 자기 글이거나 동성만 모집하는 글인데 성별이 다르면 불가
+     * 자기 글에는 참여 불가
      */
     public boolean canJoin(final Ride ride, final User requester) {
-        if(ride.getHost().getId().equals(requester.getId())){
-            return false;
-        }
-        if(ride.getGenderPolicy() == GenderPolicy.SAME){
-            return Objects.equals(ride.getHost().getGender(), requester.getGender());
-        }
-        return true;
+        return !ride.getHost().getId().equals(requester.getId());
     }
 }

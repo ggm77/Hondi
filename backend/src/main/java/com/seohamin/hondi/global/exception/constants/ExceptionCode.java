@@ -22,7 +22,6 @@ public enum ExceptionCode {
     RIDE_NOT_EDITABLE(HttpStatus.BAD_REQUEST, "수정하거나 취소할 수 없는 상태의 모집글입니다."),
     INVALID_CAPACITY(HttpStatus.BAD_REQUEST, "현재 인원보다 적게 최대 인원을 설정할 수 없습니다."),
     CANNOT_JOIN_OWN_RIDE(HttpStatus.BAD_REQUEST, "자신의 모집글에는 참여 신청할 수 없습니다."),
-    GENDER_POLICY_MISMATCH(HttpStatus.BAD_REQUEST, "동성만 참여 가능한 모집글입니다."),
     RIDE_ALREADY_REQUESTED(HttpStatus.BAD_REQUEST, "이미 참여 신청했거나 참여 중입니다."),
     RIDE_REJECTED(HttpStatus.BAD_REQUEST, "참여가 거절된 모집글입니다."),
     PARTICIPANT_NOT_EXIST(HttpStatus.BAD_REQUEST, "참여 신청 정보가 존재하지 않습니다."),

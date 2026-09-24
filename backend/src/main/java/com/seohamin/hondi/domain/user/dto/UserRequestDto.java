@@ -19,7 +19,7 @@ public class UserRequestDto {
     @Size(min = 2, max = 20, groups = {Create.class, Update.class})
     private String nickname;
 
-    //동성 매칭에 쓰이기 때문에 회원가입 이후 변경 불가
+    //회원가입 이후 변경 불가
     @NotNull(groups = Create.class)
     private Gender gender;
 

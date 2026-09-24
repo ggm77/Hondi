@@ -5,7 +5,6 @@ import com.seohamin.hondi.domain.chat.service.ChatService;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantDecisionRequestDto;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantRequestDto;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantResponseDto;
-import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.entity.participant.ParticipantStatus;
@@ -22,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -62,15 +60,9 @@ public class RideParticipantService {
         // 3) 모집 중인지 확인
         assertRecruiting(ride);
 
-        // 4) 동성만 모집하는 글이면 성별 확인
-        if(ride.getGenderPolicy() == GenderPolicy.SAME
-                && !Objects.equals(ride.getHost().getGender(), user.getGender())){
-            throw new CustomException(ExceptionCode.GENDER_POLICY_MISMATCH);
-        }
-
         final String message = rideParticipantRequestDto.getMessage();
 
-        // 5) 이전 신청 기록 확인
+        // 4) 이전 신청 기록 확인
         final Optional<RideParticipant> existing = rideParticipantRepository.findByRideIdAndUserId(rideId, userId);
         if(existing.isPresent()){
             final RideParticipant participant = existing.get();
@@ -84,7 +76,7 @@ public class RideParticipantService {
             return new RideParticipantResponseDto(participant);
         }
 
-        // 6) 신청 저장
+        // 5) 신청 저장
         final RideParticipant saved = rideParticipantRepository.save(RideParticipant.builder()
                 .ride(ride)
                 .user(user)

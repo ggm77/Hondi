@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.ride;
 
-import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.service.matching.RideMatchResult;
 import com.seohamin.hondi.domain.ride.service.matching.RideMatcher;
@@ -43,8 +42,7 @@ class RideMatcherTest {
             final User host,
             final BigDecimal originLat, final BigDecimal originLon,
             final BigDecimal destLat, final BigDecimal destLon,
-            final LocalDateTime departureAt,
-            final GenderPolicy genderPolicy
+            final LocalDateTime departureAt
     ) {
         return Ride.builder()
                 .host(host)
@@ -52,13 +50,12 @@ class RideMatcherTest {
                 .destName("도착").destLat(destLat).destLon(destLon)
                 .departureAt(departureAt)
                 .capacity(4)
-                .genderPolicy(genderPolicy)
                 .build();
     }
 
     @Test
     void 같은_경로_같은_시간이면_최고점() {
-        final Ride r = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME, GenderPolicy.ANY);
+        final Ride r = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
 
         final RideMatchResult result = rideMatcher.score(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME).orElseThrow();
 
@@ -68,14 +65,14 @@ class RideMatcherTest {
 
     @Test
     void 도착지가_멀면_제외() {
-        final Ride toAewol = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, AEWOL_LAT, AEWOL_LON, BASE_TIME, GenderPolicy.ANY);
+        final Ride toAewol = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, AEWOL_LAT, AEWOL_LON, BASE_TIME);
 
         assertThat(rideMatcher.score(toAewol, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
     }
 
     @Test
     void 시간차가_범위를_넘으면_제외() {
-        final Ride r = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(61), GenderPolicy.ANY);
+        final Ride r = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(61));
 
         assertThat(rideMatcher.score(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
     }
@@ -83,8 +80,8 @@ class RideMatcherTest {
     @Test
     void 더_가깝고_시간이_맞는_글이_먼저() {
         final User requester = user(99, Gender.FEMALE);
-        final Ride exact = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME, GenderPolicy.ANY);
-        final Ride near = ride(user(2, Gender.MALE), NEAR_AIRPORT_LAT, NEAR_AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(30), GenderPolicy.ANY);
+        final Ride exact = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
+        final Ride near = ride(user(2, Gender.MALE), NEAR_AIRPORT_LAT, NEAR_AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(30));
 
         final List<RideMatchResult> results = rideMatcher.match(
                 List.of(near, exact), requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME
@@ -94,16 +91,15 @@ class RideMatcherTest {
     }
 
     @Test
-    void 자기_글과_성별이_다른_동성모집글은_제외() {
+    void 자기_글은_제외() {
         final User requester = user(1, Gender.FEMALE);
-        final Ride mine = ride(requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME, GenderPolicy.ANY);
-        final Ride maleOnly = ride(user(2, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME, GenderPolicy.SAME);
-        final Ride femaleOnly = ride(user(3, Gender.FEMALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME, GenderPolicy.SAME);
+        final Ride mine = ride(requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
+        final Ride others = ride(user(2, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
 
         final List<RideMatchResult> results = rideMatcher.match(
-                List.of(mine, maleOnly, femaleOnly), requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME
+                List.of(mine, others), requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME
         );
 
-        assertThat(results).extracting(RideMatchResult::ride).containsExactly(femaleOnly);
+        assertThat(results).extracting(RideMatchResult::ride).containsExactly(others);
     }
 }

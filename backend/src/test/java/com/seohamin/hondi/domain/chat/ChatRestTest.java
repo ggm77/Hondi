@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.chat;
 
-import com.seohamin.hondi.domain.ride.entity.GenderPolicy;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.user.entity.Gender;
@@ -55,7 +54,6 @@ class ChatRestTest {
                 .destName("협재해수욕장").destLat(new BigDecimal("33.394000")).destLon(new BigDecimal("126.239000"))
                 .departureAt(LocalDateTime.now().plusHours(1))
                 .capacity(3)
-                .genderPolicy(GenderPolicy.ANY)
                 .build());
 
         //게스트 참여 신청 후 수락

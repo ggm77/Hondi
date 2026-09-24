@@ -63,7 +63,6 @@ public class RideService {
                 .destLon(rideRequestDto.getDestLon())
                 .departureAt(rideRequestDto.getDepartureAt())
                 .capacity(rideRequestDto.getCapacity())
-                .genderPolicy(rideRequestDto.getGenderPolicy())
                 .memo(rideRequestDto.getMemo())
                 .build());
 
