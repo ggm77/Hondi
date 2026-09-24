@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>혼디 가게 — 제주 지도</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<style>
+  html, body { margin: 0; height: 100%; background: #f5ead8; }
+  #map { position: absolute; inset: 0; background: #f5ead8; }
+  .leaflet-tile-pane { filter: saturate(0.5) contrast(0.88) brightness(1.08); }
+  .leaflet-container { font-family: "IBM Plex Sans KR", system-ui, sans-serif; background: #f5ead8; }
+  .leaflet-control-attribution { font-size: 9px; background: rgba(245,234,216,.8); }
+  .pin {
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
+    box-shadow: 0 3px 10px rgba(46,43,37,.18); transform: translate(-50%, -50%);
+  }
+  .pin-accent { background: #c67139; color: #f5ead8; }
+  .pin-sage { background: #7a8a5e; color: #f5ead8; }
+  .pin-quiet { background: #f9f4ed; color: #645c50; box-shadow: 0 1px 2px rgba(46,43,37,.14); }
+  .pin i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .8; }
+  .leaflet-popup-content-wrapper { border-radius: 18px; background: #ebddc5; color: #201e1d; }
+  .leaflet-popup-content { margin: 12px 14px; font-size: 12px; line-height: 1.5; }
+  .leaflet-popup-tip { background: #ebddc5; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  const map = L.map('map', { center: [33.385, 126.545], zoom: 9, zoomControl: false, attributionControl: true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 18
+  }).addTo(map);
+
+  const airport = [33.5104, 126.4914];
+  const hanDam = [33.4637, 126.3208];
+  const seongsan = [33.4581, 126.9425];
+  const hallasan = [33.3617, 126.5292];
+  const seogwipo = [33.2541, 126.5601];
+  const saryeoni = [33.4126, 126.6553];
+
+  const label = (latlng, text, kind, popup) => {
+    const m = L.marker(latlng, {
+      icon: L.divIcon({ className: '', iconSize: null, html: '<span class="pin ' + kind + '"><i></i>' + text + '</span>' })
+    }).addTo(map);
+    if (popup) m.bindPopup(popup);
+    return m;
+  };
+
+  L.polyline([airport, hanDam], { color: '#c67139', weight: 4, opacity: .85, dashArray: '2 9', lineCap: 'round' }).addTo(map);
+  L.polyline([airport, seongsan], { color: '#7a8a5e', weight: 4, opacity: .8, dashArray: '2 9', lineCap: 'round' }).addTo(map);
+  L.polyline([seogwipo, saryeoni], { color: '#a19786', weight: 3, opacity: .7, dashArray: '2 9', lineCap: 'round' }).addTo(map);
+
+  label(airport, '제주공항 · 모집 2', 'pin-accent', '<b>제주공항 출발 모집글 2건</b><br>애월 15:10 · 성산 14:00');
+  label(hanDam, '애월 한담 15:10', 'pin-accent', '<b>제주공항 → 애월 한담해변</b><br>오늘 15:10 · 1명 더 · 39.4℃');
+  label(seongsan, '성산일출봉 14:00', 'pin-sage', '<b>제주공항 → 성산일출봉</b><br>오늘 14:00 · 1명 더 · 38.1℃');
+  label(saryeoni, '사려니숲길 16:30', 'pin-quiet', '<b>서귀포터미널 → 사려니숲길</b><br>오늘 16:30 · 2명 더');
+  label(hallasan, '한라산', 'pin-quiet');
+</script>
+</body>
+</html>
