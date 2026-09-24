@@ -80,6 +80,16 @@ function renderOverlay() {
   `
 }
 
+function update(patch) {
+  Object.assign(state, patch)
+  render()
+}
+
+function updateOverlay(patch) {
+  Object.assign(state, patch)
+  renderOverlay()
+}
+
 function go(screen) {
   state.screen = screen
   state.sheet = null
@@ -95,33 +105,28 @@ function screenFromHash() {
 
 function flash(message) {
   clearTimeout(toastTimer)
-  state.toast = message
-  renderOverlay()
-  toastTimer = setTimeout(() => {
-    state.toast = null
-    renderOverlay()
-  }, 2600)
+  updateOverlay({ toast: message })
+  toastTimer = setTimeout(() => updateOverlay({ toast: null }), 2600)
 }
 
-function pushMessage(t, me) {
-  state.msgs = [...state.msgs, { me, t, at: now() }]
+function withMessage(t, me) {
+  return [...state.msgs, { me, t, at: now() }]
+}
+
+function toggleItem(list, item) {
+  return list.includes(item) ? list.filter((x) => x !== item) : [...list, item]
 }
 
 function sendText(t) {
   const trimmed = (t ?? '').trim()
   if (!trimmed) return
-  pushMessage(trimmed, true)
-  state.draft = ''
-  render()
+  update({ msgs: withMessage(trimmed, true), draft: '' })
   const draftInput = document.getElementById('draftInput')
   if (draftInput) draftInput.focus()
 
   clearTimeout(replyTimer)
   const reply = autoReplies[Math.floor(Math.random() * autoReplies.length)]
-  replyTimer = setTimeout(() => {
-    pushMessage(reply, false)
-    render()
-  }, 1100)
+  replyTimer = setTimeout(() => update({ msgs: withMessage(reply, false) }), 1100)
 }
 
 const actions = {
@@ -134,22 +139,10 @@ const actions = {
   goReview: () => go('review'),
   goProfile: () => go('profile'),
 
-  setDay: (day) => {
-    state.day = day
-    render()
-  },
-  incSeats: () => {
-    state.seats = Math.min(3, state.seats + 1)
-    render()
-  },
-  decSeats: () => {
-    state.seats = Math.max(1, state.seats - 1)
-    render()
-  },
-  toggleGender: () => {
-    state.sameGender = !state.sameGender
-    render()
-  },
+  setDay: (day) => update({ day }),
+  incSeats: () => update({ seats: Math.min(3, state.seats + 1) }),
+  decSeats: () => update({ seats: Math.max(1, state.seats - 1) }),
+  toggleGender: () => update({ sameGender: !state.sameGender }),
   submitPost: () => {
     go('matches')
     flash('모집글을 올렸어요. 동선이 겹치는 여행객을 찾고 있어요.')
@@ -159,37 +152,18 @@ const actions = {
   sendQuick: (text) => sendText(text),
   callTaxi: () => flash('카카오 T 앱으로 이동해요. 호출과 요금 정산은 직접 진행해 주세요.'),
 
-  toggleChip: (arg) => {
-    const i = Number(arg)
-    state.chips = state.chips.includes(i) ? state.chips.filter((x) => x !== i) : [...state.chips, i]
-    render()
-  },
+  toggleChip: (arg) => update({ chips: toggleItem(state.chips, Number(arg)) }),
   submitReview: () => {
     const newTemp = (39.4 + state.chips.length * 0.1).toFixed(1) + '℃'
     go('home')
     flash(`후기를 남겼어요. 수민님의 매너온도가 ${newTemp}로 올라갔어요.`)
   },
 
-  openReport: () => {
-    state.sheet = 'report'
-    renderOverlay()
-  },
-  openBlocked: () => {
-    state.sheet = 'blocked'
-    renderOverlay()
-  },
-  closeSheet: () => {
-    state.sheet = null
-    renderOverlay()
-  },
-  pickReason: (arg) => {
-    state.reportReason = Number(arg)
-    renderOverlay()
-  },
-  toggleBlock: () => {
-    state.block = !state.block
-    renderOverlay()
-  },
+  openReport: () => updateOverlay({ sheet: 'report' }),
+  openBlocked: () => updateOverlay({ sheet: 'blocked' }),
+  closeSheet: () => updateOverlay({ sheet: null }),
+  pickReason: (arg) => updateOverlay({ reportReason: Number(arg) }),
+  toggleBlock: () => updateOverlay({ block: !state.block }),
   submitReport: () => {
     if (state.reportReason === null) return
     const blocked = state.block
@@ -198,8 +172,7 @@ const actions = {
     flash(blocked ? '신고를 접수하고 수민님을 차단했어요.' : '신고를 접수했어요. 해당 모집글은 숨겨졌어요.')
   },
   unblock: () => {
-    state.sheet = null
-    renderOverlay()
+    updateOverlay({ sheet: null })
     flash('차단을 해제했어요.')
   },
 }
