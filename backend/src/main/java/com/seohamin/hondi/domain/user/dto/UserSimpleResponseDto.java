@@ -4,7 +4,7 @@ import com.seohamin.hondi.domain.user.entity.User;
 import lombok.Getter;
 
 /**
- * 게시글, 채팅 등에 같이 보여줄 간단한 유저 정보
+ * 모집글 등에 같이 보여줄 간단한 유저 정보
  */
 @Getter
 public class UserSimpleResponseDto {

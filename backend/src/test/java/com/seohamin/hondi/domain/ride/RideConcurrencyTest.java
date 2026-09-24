@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.ride;
 
-import com.seohamin.hondi.domain.chat.repository.ChatRepository;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
@@ -47,12 +46,8 @@ class RideConcurrencyTest {
     @Autowired
     private TestAuthHelper testAuthHelper;
 
-    @Autowired
-    private ChatRepository chatRepository;
-
     @AfterEach
     void tearDown() {
-        chatRepository.deleteAll();
         rideParticipantRepository.deleteAll();
         rideRepository.deleteAll();
         userRepository.deleteAll();

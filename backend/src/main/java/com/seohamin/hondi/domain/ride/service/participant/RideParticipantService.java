@@ -1,7 +1,5 @@
 package com.seohamin.hondi.domain.ride.service.participant;
 
-import com.seohamin.hondi.domain.chat.entity.ChatType;
-import com.seohamin.hondi.domain.chat.service.ChatService;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantResponseDto;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
@@ -27,7 +25,6 @@ public class RideParticipantService {
     private final RideRepository rideRepository;
     private final RideParticipantRepository rideParticipantRepository;
     private final UserRepository userRepository;
-    private final ChatService chatService;
 
     /**
      * 모집글에 참여하는 메서드
@@ -75,9 +72,8 @@ public class RideParticipantService {
                     .build());
         }
 
-        // 6) 인원 증가 및 입장 메세지
+        // 6) 인원 증가
         ride.increaseCount();
-        chatService.sendSystemChat(ride, ChatType.ENTER, participant.getUser().getNickname() + "님이 참여했어요.");
 
         return new RideParticipantResponseDto(participant);
     }
@@ -108,10 +104,9 @@ public class RideParticipantService {
             throw new CustomException(ExceptionCode.RIDE_NOT_EDITABLE);
         }
 
-        // 4) 인원 감소 및 퇴장 메세지
+        // 4) 인원 감소
         ride.decreaseCount();
         participant.leave();
-        chatService.sendSystemChat(ride, ChatType.EXIT, participant.getUser().getNickname() + "님이 나갔어요.");
     }
 
     //모집 중이고 출발 전인지 확인

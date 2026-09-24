@@ -1,7 +1,5 @@
 package com.seohamin.hondi.domain.ride.service;
 
-import com.seohamin.hondi.domain.chat.entity.ChatType;
-import com.seohamin.hondi.domain.chat.service.ChatService;
 import com.seohamin.hondi.domain.ride.dto.RideMyStatus;
 import com.seohamin.hondi.domain.ride.dto.RideRequestDto;
 import com.seohamin.hondi.domain.ride.dto.RideResponseDto;
@@ -31,7 +29,6 @@ public class RideService {
     private final RideParticipantRepository rideParticipantRepository;
     private final UserRepository userRepository;
     private final ServiceAreaValidator serviceAreaValidator;
-    private final ChatService chatService;
 
     /**
      * 동승 모집글을 생성하는 메서드
@@ -130,7 +127,7 @@ public class RideService {
 
     /**
      * 모집글을 취소하는 메서드
-     * 삭제하지 않고 CANCELED 상태로 변경 (채팅, 참여 기록 유지)
+     * 삭제하지 않고 CANCELED 상태로 변경 (참여 기록 유지)
      * @param rideId 모집글 아이디
      * @param userId 요청한 유저 아이디
      */
@@ -146,7 +143,6 @@ public class RideService {
         assertEditable(ride);
 
         ride.cancel();
-        chatService.sendSystemChat(ride, ChatType.SYSTEM, "방장이 모집을 취소했어요.");
     }
 
     /**

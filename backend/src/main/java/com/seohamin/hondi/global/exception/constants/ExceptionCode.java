@@ -24,8 +24,6 @@ public enum ExceptionCode {
     CANNOT_JOIN_OWN_RIDE(HttpStatus.BAD_REQUEST, "자신의 모집글에는 참여할 수 없습니다."),
     RIDE_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "이미 참여 중입니다."),
     PARTICIPANT_NOT_EXIST(HttpStatus.BAD_REQUEST, "참여 중인 모집글이 아닙니다."),
-    CHAT_ROOM_NOT_EXIST(HttpStatus.BAD_REQUEST, "채팅방이 존재하지 않습니다."),
-    CHAT_ROOM_NOT_JOINED(HttpStatus.FORBIDDEN, "채팅방에 참가하고 있지 않습니다."),
 
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 

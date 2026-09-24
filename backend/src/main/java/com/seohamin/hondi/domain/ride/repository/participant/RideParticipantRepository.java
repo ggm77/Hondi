@@ -14,8 +14,6 @@ public interface RideParticipantRepository extends JpaRepository<RideParticipant
 
     Optional<RideParticipant> findByRideIdAndUserId(Long rideId, Long userId);
 
-    boolean existsByRideIdAndUserIdAndStatus(Long rideId, Long userId, ParticipantStatus status);
-
     //모집글의 참여자들을 유저 정보와 같이 조회
     @Query("""
         SELECT p FROM RideParticipant p
