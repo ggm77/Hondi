@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.user.dto;
 
-import com.seohamin.hondi.domain.user.entity.Gender;
 import com.seohamin.hondi.domain.user.entity.User;
 import lombok.Getter;
 
@@ -13,7 +12,6 @@ public class UserSimpleResponseDto {
     private final Long id;
     private final String nickname;
     private final String profileImage;
-    private final Gender gender;
     private final Integer totalScore;
     private final Integer totalReviews;
 
@@ -21,7 +19,6 @@ public class UserSimpleResponseDto {
         this.id = user.getId();
         this.nickname = user.getNickname();
         this.profileImage = user.getProfileImage();
-        this.gender = user.getGender();
         this.totalScore = user.getTotalScore();
         this.totalReviews = user.getTotalReviews();
     }

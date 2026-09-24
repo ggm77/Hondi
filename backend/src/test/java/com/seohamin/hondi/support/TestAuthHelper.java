@@ -1,7 +1,6 @@
 package com.seohamin.hondi.support;
 
 import com.seohamin.hondi.domain.user.dto.oauth.UserOauth2AccountsRequestDto;
-import com.seohamin.hondi.domain.user.entity.Gender;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.domain.user.repository.UserRepository;
 import com.seohamin.hondi.global.auth.jwt.JwtProvider;
@@ -22,13 +21,12 @@ public class TestAuthHelper {
     }
 
     //회원가입 완료된 유저 생성
-    public User createUser(final String nickname, final Gender gender) {
+    public User createUser(final String nickname) {
         final User user = new User(UserOauth2AccountsRequestDto.builder()
                 .provider("kakao")
                 .providerUserId(nickname)
                 .build());
         user.updateNickname(nickname);
-        user.updateGender(gender);
         user.updateRoleToUser();
         return userRepository.save(user);
     }

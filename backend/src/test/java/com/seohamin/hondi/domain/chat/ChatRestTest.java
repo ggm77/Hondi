@@ -2,7 +2,6 @@ package com.seohamin.hondi.domain.chat;
 
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
-import com.seohamin.hondi.domain.user.entity.Gender;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.support.TestAuthHelper;
 import com.jayway.jsonpath.JsonPath;
@@ -45,9 +44,9 @@ class ChatRestTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        host = testAuthHelper.createUser("채팅방장", Gender.MALE);
-        guest = testAuthHelper.createUser("채팅게스트", Gender.MALE);
-        stranger = testAuthHelper.createUser("모르는사람", Gender.MALE);
+        host = testAuthHelper.createUser("채팅방장");
+        guest = testAuthHelper.createUser("채팅게스트");
+        stranger = testAuthHelper.createUser("모르는사람");
         ride = rideRepository.save(Ride.builder()
                 .host(host)
                 .originName("제주국제공항").originLat(new BigDecimal("33.507000")).originLon(new BigDecimal("126.493000"))

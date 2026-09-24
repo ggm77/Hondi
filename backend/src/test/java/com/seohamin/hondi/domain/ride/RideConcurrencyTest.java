@@ -9,7 +9,6 @@ import com.seohamin.hondi.domain.ride.entity.participant.ParticipantStatus;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
 import com.seohamin.hondi.domain.ride.service.participant.RideParticipantService;
-import com.seohamin.hondi.domain.user.entity.Gender;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.domain.user.repository.UserRepository;
 import com.seohamin.hondi.support.TestAuthHelper;
@@ -65,7 +64,7 @@ class RideConcurrencyTest {
     @Test
     void 동시에_수락해도_정원을_넘지_않는다() throws Exception {
         // 1) 정원 2명(방장 포함) 모집글과 신청자 5명
-        final User host = testAuthHelper.createUser("동시성방장", Gender.MALE);
+        final User host = testAuthHelper.createUser("동시성방장");
         final Ride ride = rideRepository.save(Ride.builder()
                 .host(host)
                 .originName("제주국제공항").originLat(new BigDecimal("33.507000")).originLon(new BigDecimal("126.493000"))
@@ -77,7 +76,7 @@ class RideConcurrencyTest {
         final int requestCount = 5;
         final List<Long> participantIds = new java.util.ArrayList<>();
         for (int i = 0; i < requestCount; i++) {
-            final User guest = testAuthHelper.createUser("동시성게스트" + i, Gender.MALE);
+            final User guest = testAuthHelper.createUser("동시성게스트" + i);
             participantIds.add(rideParticipantService
                     .requestJoin(ride.getId(), new RideParticipantRequestDto(), guest.getId())
                     .getId());

@@ -4,7 +4,6 @@ import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.service.matching.RideMatchResult;
 import com.seohamin.hondi.domain.ride.service.matching.RideMatcher;
 import com.seohamin.hondi.domain.user.dto.oauth.UserOauth2AccountsRequestDto;
-import com.seohamin.hondi.domain.user.entity.Gender;
 import com.seohamin.hondi.domain.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -31,10 +30,9 @@ class RideMatcherTest {
 
     private final RideMatcher rideMatcher = new RideMatcher();
 
-    private static User user(final long id, final Gender gender) {
+    private static User user(final long id) {
         final User user = new User(UserOauth2AccountsRequestDto.builder().build());
         ReflectionTestUtils.setField(user, "id", id);
-        user.updateGender(gender);
         return user;
     }
 
@@ -55,7 +53,7 @@ class RideMatcherTest {
 
     @Test
     void 같은_경로_같은_시간이면_최고점() {
-        final Ride r = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
+        final Ride r = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
 
         final RideMatchResult result = rideMatcher.score(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME).orElseThrow();
 
@@ -65,23 +63,23 @@ class RideMatcherTest {
 
     @Test
     void 도착지가_멀면_제외() {
-        final Ride toAewol = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, AEWOL_LAT, AEWOL_LON, BASE_TIME);
+        final Ride toAewol = ride(user(1), AIRPORT_LAT, AIRPORT_LON, AEWOL_LAT, AEWOL_LON, BASE_TIME);
 
         assertThat(rideMatcher.score(toAewol, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
     }
 
     @Test
     void 시간차가_범위를_넘으면_제외() {
-        final Ride r = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(61));
+        final Ride r = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(61));
 
         assertThat(rideMatcher.score(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
     }
 
     @Test
     void 더_가깝고_시간이_맞는_글이_먼저() {
-        final User requester = user(99, Gender.FEMALE);
-        final Ride exact = ride(user(1, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
-        final Ride near = ride(user(2, Gender.MALE), NEAR_AIRPORT_LAT, NEAR_AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(30));
+        final User requester = user(99);
+        final Ride exact = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
+        final Ride near = ride(user(2), NEAR_AIRPORT_LAT, NEAR_AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(30));
 
         final List<RideMatchResult> results = rideMatcher.match(
                 List.of(near, exact), requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME
@@ -92,9 +90,9 @@ class RideMatcherTest {
 
     @Test
     void 자기_글은_제외() {
-        final User requester = user(1, Gender.FEMALE);
+        final User requester = user(1);
         final Ride mine = ride(requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
-        final Ride others = ride(user(2, Gender.MALE), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
+        final Ride others = ride(user(2), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
 
         final List<RideMatchResult> results = rideMatcher.match(
                 List.of(mine, others), requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME

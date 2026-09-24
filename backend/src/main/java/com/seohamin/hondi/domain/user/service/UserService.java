@@ -19,7 +19,7 @@ public class UserService {
 
     /**
      * OAuth로 임시 가입된 유저의 회원가입을 완료하는 메서드
-     * 닉네임과 성별을 등록하고 role을 USER로 변경
+     * 닉네임을 등록하고 role을 USER로 변경
      * 변경된 role을 반영하려면 프론트에서 토큰 재발급을 해야 함
      * @param userRequestDto 회원가입 요청 DTO
      * @param userId oauth에서 등록된 유저 아이디
@@ -46,7 +46,6 @@ public class UserService {
 
         // 4) 정보 등록
         user.updateNickname(userRequestDto.getNickname());
-        user.updateGender(userRequestDto.getGender());
         if(userRequestDto.getProfileImage() != null && !userRequestDto.getProfileImage().isBlank()){
             user.updateProfileImage(userRequestDto.getProfileImage());
         }
@@ -86,7 +85,7 @@ public class UserService {
     /**
      * 유저의 정보를 수정하는 메서드
      * 본인의 정보만 수정 가능
-     * 원하는 정보만 수정 가능 (성별은 수정 불가)
+     * 원하는 정보만 수정 가능
      * @param userId 자신의 유저 아이디
      * @param userRequestDto 수정할 정보들
      * @return 수정된 유저 DTO

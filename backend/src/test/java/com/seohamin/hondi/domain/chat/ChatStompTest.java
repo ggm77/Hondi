@@ -6,7 +6,6 @@ import com.seohamin.hondi.domain.chat.service.ChatService;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
-import com.seohamin.hondi.domain.user.entity.Gender;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.domain.user.repository.UserRepository;
 import com.seohamin.hondi.support.TestAuthHelper;
@@ -71,8 +70,8 @@ class ChatStompTest {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new JacksonJsonMessageConverter());
 
-        host = testAuthHelper.createUser("스톰프방장", Gender.FEMALE);
-        stranger = testAuthHelper.createUser("스톰프외부인", Gender.FEMALE);
+        host = testAuthHelper.createUser("스톰프방장");
+        stranger = testAuthHelper.createUser("스톰프외부인");
         ride = rideRepository.save(Ride.builder()
                 .host(host)
                 .originName("제주국제공항").originLat(new BigDecimal("33.507000")).originLon(new BigDecimal("126.493000"))

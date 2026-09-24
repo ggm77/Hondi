@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * 유저 정보를 저장하는 엔티티
- * OAuth로 처음 가입하면 NOT_REGISTERED 상태이고, 닉네임과 성별을 등록하면 USER가 됨
+ * OAuth로 처음 가입하면 NOT_REGISTERED 상태이고, 닉네임을 등록하면 USER가 됨
  */
 @Entity
 @Getter
@@ -42,11 +42,6 @@ public class User extends BaseTimeEntity {
     //실제 이름 (OAuth에서 받아옴)
     @Column(length = 255, nullable = true)
     private String name;
-
-    //성별 (회원가입 완료 전에는 null)
-    @Enumerated(EnumType.STRING)
-    @Column(length = 10, nullable = true)
-    private Gender gender;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
@@ -80,11 +75,6 @@ public class User extends BaseTimeEntity {
     //프로필 사진 변경
     public void updateProfileImage(final String newProfileImage){
         this.profileImage = newProfileImage;
-    }
-
-    //성별 변경
-    public void updateGender(final Gender gender){
-        this.gender = gender;
     }
 
     //role을 일반 유저로 변경

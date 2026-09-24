@@ -77,7 +77,7 @@ class KakaoLoginTest {
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"nickname":"제주여행자","gender":"FEMALE"}
+                                {"nickname":"제주여행자"}
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("USER"))
@@ -104,7 +104,7 @@ class KakaoLoginTest {
     void 회원가입은_한번만_가능() throws Exception {
         final String accessToken = JsonPath.read(kakaoLogin(), "$.accessToken");
         final String body = """
-                {"nickname":"중복가입","gender":"MALE"}
+                {"nickname":"중복가입"}
                 """;
 
         mockMvc.perform(post("/api/v1/user").header("Authorization", "Bearer " + accessToken)

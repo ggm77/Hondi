@@ -1,7 +1,6 @@
 package com.seohamin.hondi.domain.ride;
 
 import com.jayway.jsonpath.JsonPath;
-import com.seohamin.hondi.domain.user.entity.Gender;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.support.TestAuthHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +39,9 @@ class RideFlowTest {
 
     @BeforeEach
     void setUp() {
-        host = testAuthHelper.createUser("방장", Gender.FEMALE);
-        guest = testAuthHelper.createUser("게스트", Gender.FEMALE);
-        other = testAuthHelper.createUser("다른사람", Gender.MALE);
+        host = testAuthHelper.createUser("방장");
+        guest = testAuthHelper.createUser("게스트");
+        other = testAuthHelper.createUser("다른사람");
         departureAt = LocalDateTime.now().plusHours(2).truncatedTo(ChronoUnit.SECONDS).toString();
     }
 
