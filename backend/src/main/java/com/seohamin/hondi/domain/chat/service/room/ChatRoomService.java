@@ -27,7 +27,7 @@ public class ChatRoomService {
 
     /**
      * 유저가 채팅방(모집글)의 멤버인지 확인하는 메서드
-     * 방장이거나 참여가 수락된 유저만 멤버
+     * 방장이거나 참여 중인 유저만 멤버
      * @param rideId 모집글 아이디
      * @param userId 유저 아이디
      * @return 멤버 여부
@@ -35,7 +35,7 @@ public class ChatRoomService {
     @Transactional(readOnly = true)
     public boolean isMember(final Long rideId, final Long userId) {
         return rideRepository.existsByIdAndHostId(rideId, userId)
-                || rideParticipantRepository.existsByRideIdAndUserIdAndStatus(rideId, userId, ParticipantStatus.ACCEPTED);
+                || rideParticipantRepository.existsByRideIdAndUserIdAndStatus(rideId, userId, ParticipantStatus.JOINED);
     }
 
     /**
@@ -50,7 +50,7 @@ public class ChatRoomService {
         // 1) 방장인 모집글과 참여 중인 모집글
         final Stream<Ride> hostRides = rideRepository.findByHostId(userId).stream();
         final Stream<Ride> joinedRides = rideParticipantRepository
-                .findByUserIdAndStatusIn(userId, List.of(ParticipantStatus.ACCEPTED))
+                .findByUserIdAndStatusIn(userId, List.of(ParticipantStatus.JOINED))
                 .stream()
                 .map(RideParticipant::getRide);
 

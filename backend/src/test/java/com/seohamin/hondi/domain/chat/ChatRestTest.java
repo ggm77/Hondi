@@ -1,10 +1,10 @@
 package com.seohamin.hondi.domain.chat;
 
+import com.jayway.jsonpath.JsonPath;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.support.TestAuthHelper;
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,16 +55,9 @@ class ChatRestTest {
                 .capacity(3)
                 .build());
 
-        //게스트 참여 신청 후 수락
-        final String response = mockMvc.perform(post("/api/v1/ride/" + ride.getId() + "/participant")
-                        .header("Authorization", testAuthHelper.bearer(guest))
-                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andReturn().getResponse().getContentAsString();
-        final long participantId = ((Number) JsonPath.read(response, "$.id")).longValue();
-
-        mockMvc.perform(patch("/api/v1/ride/" + ride.getId() + "/participant/" + participantId)
-                        .header("Authorization", testAuthHelper.bearer(host))
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"ACCEPTED\"}"))
+        //게스트 참여
+        mockMvc.perform(post("/api/v1/ride/" + ride.getId() + "/participant")
+                        .header("Authorization", testAuthHelper.bearer(guest)))
                 .andExpect(status().isOk());
     }
 

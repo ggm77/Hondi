@@ -29,7 +29,7 @@ public class RideResponseDto {
     //조회한 유저와 모집글의 관계
     private final RideMyStatus myStatus;
 
-    //수락된 참여자들
+    //참여 중인 유저들
     private final List<UserSimpleResponseDto> members;
 
     public RideResponseDto(

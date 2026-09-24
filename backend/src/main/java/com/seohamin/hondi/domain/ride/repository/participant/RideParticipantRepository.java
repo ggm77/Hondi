@@ -28,7 +28,7 @@ public interface RideParticipantRepository extends JpaRepository<RideParticipant
             @Param("statuses") Collection<ParticipantStatus> statuses
     );
 
-    //내가 참여한(신청 포함) 모집글
+    //내가 참여한 모집글
     @Query("""
         SELECT p FROM RideParticipant p
         JOIN FETCH p.ride r

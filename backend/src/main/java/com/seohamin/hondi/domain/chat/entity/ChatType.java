@@ -3,7 +3,7 @@ package com.seohamin.hondi.domain.chat.entity;
 public enum ChatType {
     // 기본적인 채팅 메세지
     MESSAGE,
-    // 채팅방 입장 (참여 수락됨)
+    // 채팅방 입장 (모집글 참여)
     ENTER,
     // 채팅방 나가기
     EXIT,

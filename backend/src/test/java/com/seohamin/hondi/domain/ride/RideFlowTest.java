@@ -68,24 +68,7 @@ class RideFlowTest {
 
     private ResultActions join(final long rideId, final User user) throws Exception {
         return mockMvc.perform(post("/api/v1/ride/" + rideId + "/participant")
-                .header("Authorization", testAuthHelper.bearer(user))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"message\":\"같이 가요\"}"));
-    }
-
-    private long joinAndGetId(final long rideId, final User user) throws Exception {
-        final String response = join(rideId, user)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("REQUESTED"))
-                .andReturn().getResponse().getContentAsString();
-        return ((Number) JsonPath.read(response, "$.id")).longValue();
-    }
-
-    private ResultActions decide(final long rideId, final long participantId, final User user, final String decision) throws Exception {
-        return mockMvc.perform(patch("/api/v1/ride/" + rideId + "/participant/" + participantId)
-                .header("Authorization", testAuthHelper.bearer(user))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"status\":\"" + decision + "\"}"));
+                .header("Authorization", testAuthHelper.bearer(user)));
     }
 
     @Test
@@ -113,31 +96,31 @@ class RideFlowTest {
     }
 
     @Test
-    void 신청_수락하면_인원이_차고_나가면_다시_모집() throws Exception {
+    void 참여하면_바로_인원이_차고_나가면_다시_모집() throws Exception {
         final long rideId = createRide(2);
-        final long participantId = joinAndGetId(rideId, guest);
 
-        //중복 신청 불가
+        //방장 수락 없이 바로 참여
+        join(rideId, guest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("JOINED"));
+
+        //중복 참여 불가
         join(rideId, guest)
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("RIDE_ALREADY_REQUESTED"));
+                .andExpect(jsonPath("$.code").value("RIDE_ALREADY_JOINED"));
 
-        //방장이 아니면 수락 불가
-        decide(rideId, participantId, guest, "ACCEPTED")
-                .andExpect(status().isForbidden());
-
-        //방장이 수락 -> 인원 다 참
-        decide(rideId, participantId, host, "ACCEPTED")
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("ACCEPTED"));
+        //자기 글 참여 불가
+        join(rideId, host)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("CANNOT_JOIN_OWN_RIDE"));
 
         mockMvc.perform(get("/api/v1/ride/" + rideId).header("Authorization", testAuthHelper.bearer(guest)))
                 .andExpect(jsonPath("$.status").value("FULL"))
                 .andExpect(jsonPath("$.currentCount").value(2))
-                .andExpect(jsonPath("$.myStatus").value("ACCEPTED"))
+                .andExpect(jsonPath("$.myStatus").value("JOINED"))
                 .andExpect(jsonPath("$.members[0].nickname").value("게스트"));
 
-        //다 찼으면 신청 불가
+        //다 찼으면 참여 불가
         join(rideId, other)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("RIDE_FULL"));
@@ -151,21 +134,14 @@ class RideFlowTest {
                 .andExpect(jsonPath("$.status").value("RECRUITING"))
                 .andExpect(jsonPath("$.currentCount").value(1));
 
-        //나갔던 사람은 다시 신청 가능
+        //나갔던 사람도 다시 참여 가능
         join(rideId, guest).andExpect(status().isOk());
-    }
 
-    @Test
-    void 거절된_사람은_다시_신청_불가() throws Exception {
-        final long rideId = createRide(4);
-        final long participantId = joinAndGetId(rideId, other);
-
-        decide(rideId, participantId, host, "REJECTED")
-                .andExpect(jsonPath("$.status").value("REJECTED"));
-
-        join(rideId, other)
+        //참여 중이 아니면 나가기 불가
+        mockMvc.perform(delete("/api/v1/ride/" + rideId + "/participant/me")
+                        .header("Authorization", testAuthHelper.bearer(other)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("RIDE_REJECTED"));
+                .andExpect(jsonPath("$.code").value("PARTICIPANT_NOT_EXIST"));
     }
 
     @Test
@@ -209,7 +185,7 @@ class RideFlowTest {
     @Test
     void 내_모집글과_참여글_목록() throws Exception {
         final long rideId = createRide(4);
-        joinAndGetId(rideId, guest);
+        join(rideId, guest).andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/rides/me").header("Authorization", testAuthHelper.bearer(host)))
                 .andExpect(jsonPath("$.rides", hasSize(1)))
@@ -217,10 +193,6 @@ class RideFlowTest {
 
         mockMvc.perform(get("/api/v1/rides/me").header("Authorization", testAuthHelper.bearer(guest)))
                 .andExpect(jsonPath("$.rides", hasSize(1)))
-                .andExpect(jsonPath("$.rides[0].myStatus").value("REQUESTED"));
-
-        mockMvc.perform(get("/api/v1/ride/" + rideId + "/participants").header("Authorization", testAuthHelper.bearer(host)))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].message").value("같이 가요"));
+                .andExpect(jsonPath("$.rides[0].myStatus").value("JOINED"));
     }
 }

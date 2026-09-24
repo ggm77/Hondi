@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 /**
  * 채팅 메세지 엔티티
- * 채팅방은 모집글 하나당 하나 (방장 + 수락된 참여자)
+ * 채팅방은 모집글 하나당 하나 (방장 + 참여 중인 유저)
  */
 @Entity
 @Getter

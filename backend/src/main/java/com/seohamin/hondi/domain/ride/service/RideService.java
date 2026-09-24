@@ -71,7 +71,7 @@ public class RideService {
 
     /**
      * 모집글을 조회하는 메서드
-     * 수락된 참여자 목록과 조회한 유저의 참여 상태를 같이 보여줌
+     * 참여 중인 유저 목록과 조회한 유저의 참여 상태를 같이 보여줌
      * @param rideId 모집글 아이디
      * @param userId 조회하는 유저 아이디
      * @return 모집글 DTO
@@ -130,7 +130,7 @@ public class RideService {
 
     /**
      * 모집글을 취소하는 메서드
-     * 삭제하지 않고 CANCELED 상태로 변경 (채팅, 신청 기록 유지)
+     * 삭제하지 않고 CANCELED 상태로 변경 (채팅, 참여 기록 유지)
      * @param rideId 모집글 아이디
      * @param userId 요청한 유저 아이디
      */
@@ -184,7 +184,7 @@ public class RideService {
     //응답 DTO 만들기
     private RideResponseDto toResponseDto(final Ride ride, final Long userId){
         final List<UserSimpleResponseDto> members = rideParticipantRepository
-                .findByRideIdAndStatusIn(ride.getId(), List.of(ParticipantStatus.ACCEPTED))
+                .findByRideIdAndStatusIn(ride.getId(), List.of(ParticipantStatus.JOINED))
                 .stream()
                 .map(p -> new UserSimpleResponseDto(p.getUser()))
                 .toList();

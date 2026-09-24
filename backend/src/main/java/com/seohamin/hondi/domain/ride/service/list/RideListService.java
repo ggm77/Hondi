@@ -141,7 +141,7 @@ public class RideListService {
     }
 
     /**
-     * 내가 만든 글과 참여(신청 포함) 중인 글을 조회하는 메서드
+     * 내가 만든 글과 참여 중인 글을 조회하는 메서드
      * 출발 시간 최신 순으로 정렬
      * @param userId 유저 아이디
      * @return 모집글 리스트
@@ -155,10 +155,10 @@ public class RideListService {
         rideRepository.findByHostId(userId)
                 .forEach(ride -> items.add(new RideListItemResponseDto(ride, RideMyStatus.HOST)));
 
-        // 2) 신청했거나 참여 중인 글
+        // 2) 참여 중인 글
         rideParticipantRepository.findByUserIdAndStatusIn(
                 userId,
-                List.of(ParticipantStatus.REQUESTED, ParticipantStatus.ACCEPTED)
+                List.of(ParticipantStatus.JOINED)
         ).forEach(p -> items.add(new RideListItemResponseDto(
                 p.getRide(),
                 RideMyStatus.valueOf(p.getStatus().name())

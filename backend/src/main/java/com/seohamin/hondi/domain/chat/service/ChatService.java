@@ -34,7 +34,7 @@ public class ChatService {
 
     /**
      * 채팅을 저장하고 채팅방에 전송하는 메서드
-     * 채팅방 멤버(방장, 수락된 참여자)만 전송 가능
+     * 채팅방 멤버(방장, 참여 중인 유저)만 전송 가능
      * @param rideId 채팅방 (모집글) 아이디
      * @param chatRequestDto 채팅 내용
      * @param userId 보내는 유저 아이디

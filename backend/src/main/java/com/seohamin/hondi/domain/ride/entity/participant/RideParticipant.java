@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * 동승 모집글 참여 신청 정보
+ * 동승 모집글 참여 정보
  * 방장은 참여자에 포함되지 않음
  */
 @Entity
@@ -43,34 +43,19 @@ public class RideParticipant extends BaseTimeEntity {
     @Column(length = 20, nullable = false)
     private ParticipantStatus status;
 
-    //신청할 때 방장에게 남기는 메세지
-    @Column(length = 200, nullable = true)
-    private String message;
-
     @Builder
     public RideParticipant(
             final Ride ride,
-            final User user,
-            final String message
+            final User user
     ){
         this.ride = ride;
         this.user = user;
-        this.message = message;
-        this.status = ParticipantStatus.REQUESTED;
+        this.status = ParticipantStatus.JOINED;
     }
 
-    //다시 신청 (나갔던 유저가 재신청)
-    public void request(final String message){
-        this.status = ParticipantStatus.REQUESTED;
-        this.message = message;
-    }
-
-    public void accept(){
-        this.status = ParticipantStatus.ACCEPTED;
-    }
-
-    public void reject(){
-        this.status = ParticipantStatus.REJECTED;
+    //다시 참여 (나갔던 유저가 재참여)
+    public void rejoin(){
+        this.status = ParticipantStatus.JOINED;
     }
 
     public void leave(){

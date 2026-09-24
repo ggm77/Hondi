@@ -5,9 +5,7 @@ package com.seohamin.hondi.domain.ride.dto;
  */
 public enum RideMyStatus {
     HOST,
-    REQUESTED,
-    ACCEPTED,
-    REJECTED,
+    JOINED,
     LEFT,
     NONE
 }

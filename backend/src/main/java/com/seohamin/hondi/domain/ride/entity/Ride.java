@@ -134,7 +134,7 @@ public class Ride extends BaseTimeEntity {
         refreshRecruitingStatus();
     }
 
-    //참여자 수락시 인원 증가
+    //참여자 들어올 때 인원 증가
     public void increaseCount(){
         if(this.currentCount >= this.capacity){
             throw new IllegalStateException("인원 초과");
