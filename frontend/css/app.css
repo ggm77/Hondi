@@ -7,6 +7,7 @@
 
 .app-main {
   flex: 1;
+  min-width: 0;
   max-width: 430px;
   width: 100%;
   margin: 0 auto;
@@ -37,6 +38,10 @@
 
 .tabbar-btn.active {
   color: var(--color-accent);
+}
+
+.tabbar-brand {
+  display: none;
 }
 
 .sheet-backdrop {
@@ -95,4 +100,190 @@
   display: grid;
   place-items: center;
   font-family: var(--font-heading);
+}
+
+/* 화면별 레이아웃 (모바일 기본값) */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.home-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.map-view {
+  height: 352px;
+}
+
+.map-panel {
+  margin-top: -26px;
+  border-radius: 30px 30px 0 0;
+}
+
+.map-grip {
+  margin-bottom: 4px;
+}
+
+/* 태블릿 */
+@media (min-width: 768px) {
+  .app-main {
+    max-width: 760px;
+  }
+
+  .app-main[data-screen='onboarding'] {
+    max-width: 560px;
+  }
+
+  .app-main[data-screen='compose'],
+  .app-main[data-screen='review'],
+  .app-main[data-screen='chat'] {
+    max-width: 640px;
+  }
+
+  .app-main[data-screen='map'] {
+    max-width: none;
+  }
+
+  .tabbar {
+    justify-content: center;
+  }
+
+  .tabbar-btn {
+    max-width: 112px;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .map-view {
+    height: 50vh;
+  }
+
+  .map-panel {
+    width: 100%;
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .sheet-backdrop {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .sheet {
+    max-width: 460px;
+    border-radius: 32px;
+  }
+
+  .sheet .sheet-grip {
+    display: none;
+  }
+}
+
+/* 데스크톱: 하단 탭바 → 왼쪽 사이드바 */
+@media (min-width: 1024px) {
+  .app-shell {
+    flex-direction: row;
+  }
+
+  .app-main {
+    max-width: 1120px;
+    padding-top: 12px;
+  }
+
+  .app-main[data-screen='profile'] {
+    max-width: 860px;
+  }
+
+  .app-main[data-screen='map'] {
+    padding-top: 0;
+  }
+
+  .tabbar {
+    order: -1;
+    position: sticky;
+    top: 0;
+    flex: none;
+    width: 212px;
+    height: 100vh;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 28px 14px;
+    border-top: 0;
+    border-right: 1px solid var(--color-divider);
+  }
+
+  .tabbar-brand {
+    display: block;
+    padding: 0 14px 22px;
+    font-family: var(--font-heading);
+    font-size: 24px;
+    color: var(--color-accent);
+  }
+
+  .tabbar-btn {
+    flex: none;
+    max-width: none;
+    flex-direction: row;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+
+  .tabbar-btn:hover {
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+
+  .tabbar-btn.active {
+    background: var(--color-accent-100);
+    font-weight: 600;
+  }
+
+  .home-layout {
+    display: grid;
+    grid-template-columns: minmax(300px, 380px) 1fr;
+    grid-template-areas:
+      'head head'
+      'route list'
+      'notice list';
+    grid-template-rows: auto auto 1fr;
+    align-items: start;
+    column-gap: 28px;
+  }
+
+  .home-head { grid-area: head; }
+  .home-route { grid-area: route; }
+  .home-notice { grid-area: notice; }
+  .home-list { grid-area: list; }
+  .home-divider { display: none; }
+
+  .map-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    height: 100vh;
+  }
+
+  .map-view {
+    height: 100%;
+  }
+
+  .map-panel {
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+    border-left: 1px solid var(--color-divider);
+    overflow-y: auto;
+  }
+
+  .map-grip {
+    display: none;
+  }
 }

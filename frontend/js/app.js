@@ -63,7 +63,7 @@ function render() {
 function renderApp() {
   const showTabs = state.screen !== 'onboarding'
   appEl.innerHTML = `
-    <div class="app-main">${SCREENS[state.screen](state)}</div>
+    <div class="app-main" data-screen="${state.screen}">${SCREENS[state.screen](state)}</div>
     ${showTabs ? bottomTabs(state.screen) : ''}
   `
   if (state.screen === 'chat') {

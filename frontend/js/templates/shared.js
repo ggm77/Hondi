@@ -20,6 +20,7 @@ const TABS = [
 export function bottomTabs(screen) {
   return `
     <div class="tabbar">
+      <div class="tabbar-brand">혼디 가게</div>
       ${TABS.map(
         (t) => `
         <button class="tabbar-btn${screen === t.key ? ' active' : ''}" data-action="${t.action}">

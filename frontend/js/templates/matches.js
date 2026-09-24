@@ -11,6 +11,7 @@ export function matchesScreen(state) {
         <div style="font-size:13px;color:var(--color-neutral-700);line-height:1.5">
           <b style="color:var(--color-text)">${escapeHtml(routeLabel)}</b><br>동선과 시간대가 겹치는 여행객 3명을 찾았어요.
         </div>
+        <div class="card-grid" style="gap:14px">
         ${matches
           .map(
             (m) => `
@@ -39,6 +40,7 @@ export function matchesScreen(state) {
           </div>`,
           )
           .join('')}
+        </div>
       </div>
     </div>`
 }

@@ -63,7 +63,7 @@ export function profileScreen(state) {
 
         <div>
           <h5 style="margin:0 0 9px;font-size:15px">받은 후기</h5>
-          <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="card-grid" style="gap:9px">
             ${receivedReviews
               .map(
                 (r) => `
