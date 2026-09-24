@@ -128,6 +128,91 @@
   margin-bottom: 4px;
 }
 
+/* 온보딩 */
+.onboarding {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 26px 0;
+  overflow: hidden;
+}
+
+.onboarding-sun,
+.onboarding-moon {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.onboarding-sun {
+  top: 24px;
+  right: -34px;
+  width: 124px;
+  height: 124px;
+  background: var(--color-accent-300);
+}
+
+.onboarding-moon {
+  top: 122px;
+  right: 62px;
+  width: 34px;
+  height: 34px;
+  background: var(--color-accent-2-300);
+}
+
+.onboarding-title {
+  font-size: 54px;
+}
+
+.onboarding-lead {
+  font-size: 17px;
+}
+
+.onboarding-steps {
+  margin-top: 38px;
+}
+
+.onboarding-cta {
+  margin-top: auto;
+  padding: 40px 0 26px;
+}
+
+.onboarding-hills {
+  position: absolute;
+  left: -60px;
+  right: -60px;
+  bottom: 0;
+  height: 250px;
+  pointer-events: none;
+}
+
+.hill {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+
+.hill-1 {
+  left: 8%;
+  width: 300px;
+  height: 190px;
+  background: var(--color-accent-2-200);
+}
+
+.hill-2 {
+  right: 2%;
+  width: 260px;
+  height: 132px;
+  background: var(--color-accent-2-300);
+}
+
+.hill-3 {
+  left: -4%;
+  width: 210px;
+  height: 92px;
+  background: var(--color-accent-200);
+}
+
 /* 태블릿 */
 @media (min-width: 768px) {
   .app-main {
@@ -135,7 +220,54 @@
   }
 
   .app-main[data-screen='onboarding'] {
-    max-width: 560px;
+    max-width: none;
+  }
+
+  .onboarding {
+    min-height: 100vh;
+    padding: 64px max(48px, calc((100% - 480px) / 2)) 0;
+  }
+
+  .onboarding-sun {
+    top: 40px;
+    right: 6%;
+    width: 200px;
+    height: 200px;
+  }
+
+  .onboarding-moon {
+    top: 200px;
+    right: calc(6% + 180px);
+    width: 52px;
+    height: 52px;
+  }
+
+  .onboarding-title {
+    font-size: 72px;
+  }
+
+  .onboarding-hills {
+    left: 0;
+    right: 0;
+    height: 32vh;
+  }
+
+  .hill-1 {
+    left: 14%;
+    width: 46%;
+    height: 90%;
+  }
+
+  .hill-2 {
+    right: -4%;
+    width: 44%;
+    height: 64%;
+  }
+
+  .hill-3 {
+    left: -6%;
+    width: 34%;
+    height: 44%;
   }
 
   .app-main[data-screen='compose'],
@@ -198,6 +330,56 @@
 
   .app-main[data-screen='profile'] {
     max-width: 860px;
+  }
+
+  .app-main[data-screen='onboarding'] {
+    padding-top: 0;
+  }
+
+  .onboarding {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 420px);
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas:
+      'hero .'
+      'hero steps'
+      'hero cta'
+      'hero .';
+    align-items: center;
+    column-gap: 8vw;
+    padding: 48px max(64px, calc((100% - 1120px) / 2)) 36vh;
+  }
+
+  .onboarding-hero { grid-area: hero; }
+  .onboarding-steps { grid-area: steps; margin-top: 0; }
+  .onboarding-cta { grid-area: cta; margin-top: 0; padding: 36px 0 0; }
+
+  .onboarding-title {
+    font-size: clamp(88px, 8vw, 128px);
+  }
+
+  .onboarding-lead {
+    font-size: 22px;
+    max-width: none !important;
+  }
+
+  .onboarding-sun {
+    --sun: clamp(220px, 22vw, 340px);
+    top: -80px;
+    right: -80px;
+    width: var(--sun);
+    height: var(--sun);
+  }
+
+  .onboarding-moon {
+    top: calc(clamp(220px, 22vw, 340px) - 90px);
+    right: calc(clamp(220px, 22vw, 340px) - 60px);
+    width: 52px;
+    height: 52px;
+  }
+
+  .onboarding-hills {
+    height: 34vh;
   }
 
   .app-main[data-screen='map'] {
