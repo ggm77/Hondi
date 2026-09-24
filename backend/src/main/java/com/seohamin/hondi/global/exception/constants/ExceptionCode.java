@@ -14,7 +14,6 @@ public enum ExceptionCode {
     NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "닉네임이 이미 존재합니다."),
     USER_NOT_EXIST(HttpStatus.BAD_REQUEST, "유저가 존재하지 않습니다."),
     USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "회원가입된 유저가 이미 존재 합니다."),
-    INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "잘못된 OAuth provider입니다."),
     INVALID_PAGING_PARAMETER(HttpStatus.BAD_REQUEST, "페이지네이션 파라미터가 잘못되어있습니다."),
     OUT_OF_SERVICE_AREA(HttpStatus.BAD_REQUEST, "서비스 지역(제주도)을 벗어난 위치입니다."),
     RIDE_NOT_EXIST(HttpStatus.BAD_REQUEST, "모집글이 존재하지 않습니다."),
@@ -38,7 +37,7 @@ public enum ExceptionCode {
     NOT_RIDE_HOST(HttpStatus.FORBIDDEN, "모집글 작성자만 할 수 있습니다."),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 에러가 발생했습니다."),
-    GOOGLE_REQUEST_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "구글과 통신 중 오류가 발생했습니다."),
+    KAKAO_REQUEST_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "카카오와 통신 중 오류가 발생했습니다."),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "서비스를 사용할 수 없습니다.")
     ;
 

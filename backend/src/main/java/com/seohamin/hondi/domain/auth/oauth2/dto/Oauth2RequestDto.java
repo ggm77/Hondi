@@ -6,10 +6,7 @@ import lombok.Getter;
 @Getter
 public class Oauth2RequestDto {
 
+    //프론트에서 카카오 로그인 후 받은 access token
     @NotBlank
-    private String code;
-
-    //google
-    @NotBlank
-    private String provider;
+    private String accessToken;
 }

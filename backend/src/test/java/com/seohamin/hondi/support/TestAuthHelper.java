@@ -24,7 +24,7 @@ public class TestAuthHelper {
     //회원가입 완료된 유저 생성
     public User createUser(final String nickname, final Gender gender) {
         final User user = new User(UserOauth2AccountsRequestDto.builder()
-                .provider("google")
+                .provider("kakao")
                 .providerUserId(nickname)
                 .build());
         user.updateNickname(nickname);

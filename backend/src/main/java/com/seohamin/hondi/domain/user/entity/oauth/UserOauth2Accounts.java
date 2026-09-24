@@ -28,11 +28,11 @@ public class UserOauth2Accounts {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //google...
+    //kakao...
     @Column(length = 20, nullable = false)
     private String provider;
 
-    //google에서의 sub같이 oauth에서 쓰는 식별자
+    //카카오 회원번호같이 oauth에서 쓰는 식별자
     @Column(length = 255, nullable = false)
     private String providerUserId;
 

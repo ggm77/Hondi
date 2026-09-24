@@ -18,11 +18,11 @@ public class Oauth2Controller {
 
     private final Oauth2Service oauth2Service;
 
-    //프론트에서 authorization code 받아서 oauth2완료하는 API
-    @PostMapping("/auth/oauth2")
-    public ResponseEntity<Oauth2ResponseDto> oauth2Login(
+    //카카오 OAuth API, 프론트에서 카카오 로그인 후 받은 access token으로 로그인
+    @PostMapping("/auth/oauth2/kakao")
+    public ResponseEntity<Oauth2ResponseDto> kakaoOauth2(
             @Validated @RequestBody final Oauth2RequestDto oauth2RequestDto
     ){
-        return ResponseEntity.ok(oauth2Service.processOauth2(oauth2RequestDto));
+        return ResponseEntity.ok(oauth2Service.processKakaoOauth(oauth2RequestDto));
     }
 }
