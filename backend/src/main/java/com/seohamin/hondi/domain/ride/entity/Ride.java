@@ -125,31 +125,9 @@ public class Ride extends BaseTimeEntity {
         this.memo = memo;
     }
 
-    //최대 인원 변경 (현재 인원보다 작게는 불가)
+    //최대 인원 변경 (검증은 서비스에서 함)
     public void updateCapacity(final int capacity){
-        if(capacity < this.currentCount){
-            throw new IllegalArgumentException("현재 인원보다 작게 변경 불가");
-        }
         this.capacity = capacity;
-        refreshRecruitingStatus();
-    }
-
-    //참여자 들어올 때 인원 증가
-    public void increaseCount(){
-        if(this.currentCount >= this.capacity){
-            throw new IllegalStateException("인원 초과");
-        }
-        this.currentCount += 1;
-        refreshRecruitingStatus();
-    }
-
-    //참여자 나갈 때 인원 감소
-    public void decreaseCount(){
-        if(this.currentCount <= 1){
-            throw new IllegalStateException("방장만 남아있음");
-        }
-        this.currentCount -= 1;
-        refreshRecruitingStatus();
     }
 
     //모집글 취소
@@ -157,11 +135,11 @@ public class Ride extends BaseTimeEntity {
         this.status = RideStatus.CANCELED;
     }
 
-    //모집 중 or 인원 다 참 상태를 현재 인원에 맞게 갱신
-    private void refreshRecruitingStatus(){
-        if(this.status != RideStatus.RECRUITING && this.status != RideStatus.FULL){
-            return;
+    //화면에 보여줄 상태 (FULL은 DB에 저장 안 하고 인원수로 그때그때 계산)
+    public RideStatus getDisplayStatus(){
+        if(this.status == RideStatus.CANCELED){
+            return RideStatus.CANCELED;
         }
-        this.status = this.currentCount >= this.capacity ? RideStatus.FULL : RideStatus.RECRUITING;
+        return this.currentCount >= this.capacity ? RideStatus.FULL : RideStatus.RECRUITING;
     }
 }

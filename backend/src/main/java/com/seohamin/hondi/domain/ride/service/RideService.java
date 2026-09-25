@@ -95,8 +95,8 @@ public class RideService {
             final RideRequestDto rideRequestDto,
             final Long userId
     ){
-        // 1) 인원 변경이 있을 수 있어서 락 걸고 조회
-        final Ride ride = rideRepository.findByIdForUpdate(rideId)
+        // 1) 모집글 조회
+        final Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
         // 2) 방장인지, 수정 가능한 상태인지 확인
@@ -133,7 +133,7 @@ public class RideService {
             final Long rideId,
             final Long userId
     ){
-        final Ride ride = rideRepository.findByIdForUpdate(rideId)
+        final Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
         assertHost(ride, userId);
@@ -167,7 +167,7 @@ public class RideService {
 
     //수정, 취소 가능한 상태인지 확인
     private void assertEditable(final Ride ride){
-        if(ride.getStatus() != RideStatus.RECRUITING && ride.getStatus() != RideStatus.FULL){
+        if(ride.getStatus() != RideStatus.RECRUITING){
             throw new CustomException(ExceptionCode.RIDE_NOT_EDITABLE);
         }
     }

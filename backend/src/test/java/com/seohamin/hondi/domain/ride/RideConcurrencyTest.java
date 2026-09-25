@@ -98,6 +98,6 @@ class RideConcurrencyTest {
         final Ride result = rideRepository.findById(ride.getId()).orElseThrow();
         assertThat(success.get()).isEqualTo(1);
         assertThat(result.getCurrentCount()).isEqualTo(2);
-        assertThat(result.getStatus()).isEqualTo(RideStatus.FULL);
+        assertThat(result.getDisplayStatus()).isEqualTo(RideStatus.FULL);
     }
 }

@@ -59,7 +59,7 @@ public class RideListItemResponseDto {
         this.departureAt = ride.getDepartureAt();
         this.capacity = ride.getCapacity();
         this.currentCount = ride.getCurrentCount();
-        this.status = ride.getStatus();
+        this.status = ride.getDisplayStatus();
         this.myStatus = myStatus;
 
         if(result != null){

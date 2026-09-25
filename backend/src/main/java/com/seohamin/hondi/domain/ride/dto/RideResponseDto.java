@@ -48,7 +48,7 @@ public class RideResponseDto {
         this.departureAt = ride.getDepartureAt();
         this.capacity = ride.getCapacity();
         this.currentCount = ride.getCurrentCount();
-        this.status = ride.getStatus();
+        this.status = ride.getDisplayStatus();
         this.memo = ride.getMemo();
         this.createdAt = ride.getCreatedAt();
         this.myStatus = myStatus;
