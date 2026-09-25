@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * 동승 모집글 참여 정보
+ * 행이 있으면 참여 중, 나가면 삭제됨
  * 방장은 참여자에 포함되지 않음
  */
 @Entity
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(name = "uk_ride_participant", columnNames = {"ride_id", "user_id"})
         },
         indexes = {
-                @Index(name = "idx_ride_participant_user", columnList = "user_id, status")
+                @Index(name = "idx_ride_participant_user", columnList = "user_id")
         }
 )
 public class RideParticipant extends BaseTimeEntity {
@@ -39,10 +40,6 @@ public class RideParticipant extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private ParticipantStatus status;
-
     @Builder
     public RideParticipant(
             final Ride ride,
@@ -50,15 +47,5 @@ public class RideParticipant extends BaseTimeEntity {
     ){
         this.ride = ride;
         this.user = user;
-        this.status = ParticipantStatus.JOINED;
-    }
-
-    //다시 참여 (나갔던 유저가 재참여)
-    public void rejoin(){
-        this.status = ParticipantStatus.JOINED;
-    }
-
-    public void leave(){
-        this.status = ParticipantStatus.LEFT;
     }
 }

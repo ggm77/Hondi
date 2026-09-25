@@ -5,7 +5,6 @@ import com.seohamin.hondi.domain.ride.dto.list.RideListItemResponseDto;
 import com.seohamin.hondi.domain.ride.dto.list.RideListResponseDto;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
-import com.seohamin.hondi.domain.ride.entity.participant.ParticipantStatus;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
 import com.seohamin.hondi.domain.ride.service.ServiceAreaValidator;
@@ -156,13 +155,8 @@ public class RideListService {
                 .forEach(ride -> items.add(new RideListItemResponseDto(ride, RideMyStatus.HOST)));
 
         // 2) 참여 중인 글
-        rideParticipantRepository.findByUserIdAndStatusIn(
-                userId,
-                List.of(ParticipantStatus.JOINED)
-        ).forEach(p -> items.add(new RideListItemResponseDto(
-                p.getRide(),
-                RideMyStatus.valueOf(p.getStatus().name())
-        )));
+        rideParticipantRepository.findByUserIdWithRide(userId)
+                .forEach(p -> items.add(new RideListItemResponseDto(p.getRide(), RideMyStatus.JOINED)));
 
         // 3) 출발 시간 최신 순으로 정렬
         final List<RideListItemResponseDto> sorted = items.stream()

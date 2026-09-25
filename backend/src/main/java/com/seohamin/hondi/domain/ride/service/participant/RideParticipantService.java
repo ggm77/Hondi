@@ -3,7 +3,6 @@ package com.seohamin.hondi.domain.ride.service.participant;
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantResponseDto;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
-import com.seohamin.hondi.domain.ride.entity.participant.ParticipantStatus;
 import com.seohamin.hondi.domain.ride.entity.participant.RideParticipant;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -50,27 +48,20 @@ public class RideParticipantService {
         }
 
         // 3) 이미 참여 중인지 확인
-        final Optional<RideParticipant> existing = rideParticipantRepository.findByRideIdAndUserId(rideId, userId);
-        if(existing.isPresent() && existing.get().getStatus() == ParticipantStatus.JOINED){
+        if(rideParticipantRepository.existsByRideIdAndUserId(rideId, userId)){
             throw new CustomException(ExceptionCode.RIDE_ALREADY_JOINED);
         }
 
         // 4) 모집 중이고 자리가 남아있는지 확인
         assertRecruiting(ride);
 
-        // 5) 참여 처리 (나갔던 유저면 재참여, 처음이면 새로 저장)
-        final RideParticipant participant;
-        if(existing.isPresent()){
-            participant = existing.get();
-            participant.rejoin();
-        } else {
-            final User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_EXIST));
-            participant = rideParticipantRepository.save(RideParticipant.builder()
-                    .ride(ride)
-                    .user(user)
-                    .build());
-        }
+        // 5) 참여 저장
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_EXIST));
+        final RideParticipant participant = rideParticipantRepository.save(RideParticipant.builder()
+                .ride(ride)
+                .user(user)
+                .build());
 
         // 6) 인원 증가
         ride.increaseCount();
@@ -96,7 +87,6 @@ public class RideParticipantService {
 
         // 2) 참여 정보 조회
         final RideParticipant participant = rideParticipantRepository.findByRideIdAndUserId(rideId, userId)
-                .filter(p -> p.getStatus() == ParticipantStatus.JOINED)
                 .orElseThrow(() -> new CustomException(ExceptionCode.PARTICIPANT_NOT_EXIST));
 
         // 3) 출발 전인지 확인
@@ -104,9 +94,9 @@ public class RideParticipantService {
             throw new CustomException(ExceptionCode.RIDE_NOT_EDITABLE);
         }
 
-        // 4) 인원 감소
+        // 4) 인원 감소 후 참여 정보 삭제
         ride.decreaseCount();
-        participant.leave();
+        rideParticipantRepository.delete(participant);
     }
 
     //모집 중이고 출발 전인지 확인

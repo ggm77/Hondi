@@ -6,6 +6,5 @@ package com.seohamin.hondi.domain.ride.dto;
 public enum RideMyStatus {
     HOST,
     JOINED,
-    LEFT,
     NONE
 }

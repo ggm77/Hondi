@@ -5,8 +5,6 @@ import com.seohamin.hondi.domain.ride.dto.RideRequestDto;
 import com.seohamin.hondi.domain.ride.dto.RideResponseDto;
 import com.seohamin.hondi.domain.ride.entity.Ride;
 import com.seohamin.hondi.domain.ride.entity.RideStatus;
-import com.seohamin.hondi.domain.ride.entity.participant.ParticipantStatus;
-import com.seohamin.hondi.domain.ride.entity.participant.RideParticipant;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
 import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -156,11 +153,9 @@ public class RideService {
             return RideMyStatus.HOST;
         }
 
-        final Optional<RideParticipant> participant = rideParticipantRepository.findByRideIdAndUserId(ride.getId(), userId);
-
-        return participant
-                .map(p -> RideMyStatus.valueOf(p.getStatus().name()))
-                .orElse(RideMyStatus.NONE);
+        return rideParticipantRepository.existsByRideIdAndUserId(ride.getId(), userId)
+                ? RideMyStatus.JOINED
+                : RideMyStatus.NONE;
     }
 
     //방장인지 확인
@@ -180,7 +175,7 @@ public class RideService {
     //응답 DTO 만들기
     private RideResponseDto toResponseDto(final Ride ride, final Long userId){
         final List<UserSimpleResponseDto> members = rideParticipantRepository
-                .findByRideIdAndStatusIn(ride.getId(), List.of(ParticipantStatus.JOINED))
+                .findByRideIdWithUser(ride.getId())
                 .stream()
                 .map(p -> new UserSimpleResponseDto(p.getUser()))
                 .toList();

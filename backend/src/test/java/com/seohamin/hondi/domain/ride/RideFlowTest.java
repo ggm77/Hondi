@@ -102,7 +102,7 @@ class RideFlowTest {
         //방장 수락 없이 바로 참여
         join(rideId, guest)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("JOINED"));
+                .andExpect(jsonPath("$.user.nickname").value("게스트"));
 
         //중복 참여 불가
         join(rideId, guest)
