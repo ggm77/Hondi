@@ -40,18 +40,9 @@ export const icons = {
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8" />
       <path d="M10.3 21a2 2 0 0 0 3.4 0" />
     </svg>`,
-  check: (size = 17) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" stroke="var(--color-accent-2-700)" ${strokeBase} style="flex:none">
-      <path d="M20 6 9 17l-5-5" />
-    </svg>`,
-  gender: (size = 17) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" stroke="var(--color-neutral-500)" ${strokeBase} style="flex:none">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8v8" />
-    </svg>`,
-  chevronRight: (size = 15) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" stroke="var(--color-neutral-500)" ${strokeBase}>
-      <path d="m9 18 6-6-6-6" />
+  kakao: (size = 18) => `
+    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="#000">
+      <path d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.27 4.66 6.67-.2.76-.74 2.75-.85 3.18-.13.53.2.52.41.38.17-.11 2.67-1.81 3.75-2.55.66.1 1.34.15 2.03.15 5.52 0 10-3.54 10-7.9S17.52 3 12 3z" />
     </svg>`,
   tabHome: (size = 21) => `
     <svg width="${size}" height="${size}" viewBox="0 0 24 24" stroke="currentColor" ${strokeBase}>
