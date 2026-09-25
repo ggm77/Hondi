@@ -52,31 +52,31 @@ class RideMatcherTest {
     }
 
     @Test
-    void 같은_경로_같은_시간이면_최고점() {
+    void 같은_경로_같은_시간이면_거리와_시간차가_0() {
         final Ride r = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
 
-        final RideMatchResult result = rideMatcher.score(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME).orElseThrow();
+        final RideMatchResult result = rideMatcher.toMatchResult(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME).orElseThrow();
 
-        assertThat(result.score()).isEqualTo(1.0);
         assertThat(result.originDistanceKm()).isZero();
+        assertThat(result.timeDiffMinutes()).isZero();
     }
 
     @Test
     void 도착지가_멀면_제외() {
         final Ride toAewol = ride(user(1), AIRPORT_LAT, AIRPORT_LON, AEWOL_LAT, AEWOL_LON, BASE_TIME);
 
-        assertThat(rideMatcher.score(toAewol, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
+        assertThat(rideMatcher.toMatchResult(toAewol, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
     }
 
     @Test
     void 시간차가_범위를_넘으면_제외() {
         final Ride r = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusSeconds(61 * 60));
 
-        assertThat(rideMatcher.score(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
+        assertThat(rideMatcher.toMatchResult(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
     }
 
     @Test
-    void 더_가깝고_시간이_맞는_글이_먼저() {
+    void 출발_시간이_가까운_글이_먼저() {
         final User requester = user(99);
         final Ride exact = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
         final Ride near = ride(user(2), NEAR_AIRPORT_LAT, NEAR_AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusSeconds(30 * 60));

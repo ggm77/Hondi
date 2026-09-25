@@ -83,7 +83,7 @@ class RideFlowTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.rides", hasSize(1)))
                 .andExpect(jsonPath("$.rides[0].id").value(rideId))
-                .andExpect(jsonPath("$.rides[0].score").exists());
+                .andExpect(jsonPath("$.rides[0].timeDiffMinutes").exists());
 
         //애월로 가는 사람에게는 추천 안됨
         mockMvc.perform(get("/api/v1/rides/match")

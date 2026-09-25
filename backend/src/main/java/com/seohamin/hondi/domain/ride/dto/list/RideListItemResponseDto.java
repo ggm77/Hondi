@@ -11,7 +11,7 @@ import java.time.Instant;
 
 /**
  * 모집글 리스트의 아이템
- * 매칭 검색이 아니면 거리, 점수는 null
+ * 매칭 검색이 아니면 거리, 시간차는 null
  */
 @Getter
 public class RideListItemResponseDto {
@@ -31,7 +31,6 @@ public class RideListItemResponseDto {
     private final Double originDistanceKm;
     private final Double destDistanceKm;
     private final Long timeDiffMinutes;
-    private final Double score;
 
     public RideListItemResponseDto(final Ride ride, final RideMyStatus myStatus) {
         this(ride, myStatus, null);
@@ -63,12 +62,10 @@ public class RideListItemResponseDto {
             this.originDistanceKm = round(result.originDistanceKm());
             this.destDistanceKm = round(result.destDistanceKm());
             this.timeDiffMinutes = result.timeDiffMinutes();
-            this.score = round(result.score());
         } else {
             this.originDistanceKm = null;
             this.destDistanceKm = null;
             this.timeDiffMinutes = null;
-            this.score = null;
         }
     }
 
