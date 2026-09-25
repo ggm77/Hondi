@@ -5,7 +5,7 @@ import com.seohamin.hondi.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 public class UserResponseDto {
@@ -16,7 +16,7 @@ public class UserResponseDto {
     private final Role role;
     private final Integer totalScore;
     private final Integer totalReviews;
-    private final LocalDateTime createdAt;
+    private final Instant createdAt;
 
     @Builder
     private UserResponseDto(
@@ -27,7 +27,7 @@ public class UserResponseDto {
             final Role role,
             final Integer totalScore,
             final Integer totalReviews,
-            final LocalDateTime createdAt
+            final Instant createdAt
     ) {
         this.id = id;
         this.nickname = nickname;

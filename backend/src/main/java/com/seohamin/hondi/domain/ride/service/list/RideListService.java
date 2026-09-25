@@ -22,7 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -58,7 +59,7 @@ public class RideListService {
             final BigDecimal originLon,
             final BigDecimal destLat,
             final BigDecimal destLon,
-            final LocalDateTime departureAt,
+            final Instant departureAt,
             final Integer size,
             final Long userId
     ){
@@ -73,10 +74,10 @@ public class RideListService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_EXIST));
 
         // 2) 시간 범위 계산 (이미 출발한 글 제외)
-        final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime targetAt = departureAt != null ? departureAt : now;
-        final LocalDateTime fromAt = max(targetAt.minusMinutes(RideMatcher.TIME_WINDOW_MINUTES), now);
-        final LocalDateTime toAt = targetAt.plusMinutes(RideMatcher.TIME_WINDOW_MINUTES);
+        final Instant now = Instant.now();
+        final Instant targetAt = departureAt != null ? departureAt : now;
+        final Instant fromAt = max(targetAt.minus(RideMatcher.TIME_WINDOW_MINUTES, ChronoUnit.MINUTES), now);
+        final Instant toAt = targetAt.plus(RideMatcher.TIME_WINDOW_MINUTES, ChronoUnit.MINUTES);
 
         // 3) 출발지 기준 바운딩 박스 계산
         final BigDecimal latDiff = BigDecimal.valueOf(LatLonUtil.latDiff(RideMatcher.ORIGIN_RADIUS_KM));
@@ -125,7 +126,7 @@ public class RideListService {
 
         final Slice<Ride> rides = rideRepository.findUpcoming(
                 RideStatus.RECRUITING,
-                LocalDateTime.now(),
+                Instant.now(),
                 PageRequest.of(page, size)
         );
 
@@ -166,7 +167,7 @@ public class RideListService {
         return new RideListResponseDto(sorted, false);
     }
 
-    private static LocalDateTime max(final LocalDateTime a, final LocalDateTime b){
+    private static Instant max(final Instant a, final Instant b){
         return a.isAfter(b) ? a : b;
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,8 +41,8 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     """)
     List<Ride> findMatchCandidates(
             @Param("status") RideStatus status,
-            @Param("fromAt") LocalDateTime fromAt,
-            @Param("toAt") LocalDateTime toAt,
+            @Param("fromAt") Instant fromAt,
+            @Param("toAt") Instant toAt,
             @Param("minLat") BigDecimal minLat,
             @Param("maxLat") BigDecimal maxLat,
             @Param("minLon") BigDecimal minLon,
@@ -61,7 +61,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     )
     Slice<Ride> findUpcoming(
             @Param("status") RideStatus status,
-            @Param("now") LocalDateTime now,
+            @Param("now") Instant now,
             Pageable pageable
     );
 

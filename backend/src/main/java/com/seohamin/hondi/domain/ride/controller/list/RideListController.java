@@ -3,7 +3,6 @@ package com.seohamin.hondi.domain.ride.controller.list;
 import com.seohamin.hondi.domain.ride.dto.list.RideListResponseDto;
 import com.seohamin.hondi.domain.ride.service.list.RideListService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -29,7 +28,7 @@ public class RideListController {
             @RequestParam final BigDecimal originLon,
             @RequestParam final BigDecimal destLat,
             @RequestParam final BigDecimal destLon,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final LocalDateTime departureAt,
+            @RequestParam(required = false) final Instant departureAt,
             @RequestParam(required = false, defaultValue = "20") final Integer size,
             @AuthenticationPrincipal final String userIdStr
     ){

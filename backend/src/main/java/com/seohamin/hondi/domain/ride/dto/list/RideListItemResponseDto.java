@@ -8,7 +8,7 @@ import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 모집글 리스트의 아이템
@@ -24,7 +24,7 @@ public class RideListItemResponseDto {
     private final String destName;
     private final BigDecimal destLat;
     private final BigDecimal destLon;
-    private final LocalDateTime departureAt;
+    private final Instant departureAt;
     private final Integer capacity;
     private final Integer currentCount;
     private final RideStatus status;

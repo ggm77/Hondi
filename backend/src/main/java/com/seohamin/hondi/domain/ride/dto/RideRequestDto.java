@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 모집글 생성(Create), 수정(Update) 요청 DTO
@@ -37,7 +37,7 @@ public class RideRequestDto {
 
     @NotNull(groups = Create.class)
     @Future(groups = {Create.class, Update.class})
-    private LocalDateTime departureAt;
+    private Instant departureAt;
 
     //방장 포함 최대 인원 (택시 기준 2~4, 소형 승합차 고려해서 최대 6)
     @NotNull(groups = Create.class)

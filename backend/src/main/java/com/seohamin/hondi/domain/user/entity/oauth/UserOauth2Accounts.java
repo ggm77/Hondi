@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 유저와 연결된 OAuth 계정 정보
@@ -51,7 +51,7 @@ public class UserOauth2Accounts {
 
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime linkedAt;
+    private Instant linkedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

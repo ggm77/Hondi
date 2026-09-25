@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public class RideMatcher {
             final BigDecimal originLon,
             final BigDecimal destLat,
             final BigDecimal destLon,
-            final LocalDateTime departureAt
+            final Instant departureAt
     ) {
         return candidates.stream()
                 .filter(ride -> canJoin(ride, requester))
@@ -70,7 +70,7 @@ public class RideMatcher {
             final BigDecimal originLon,
             final BigDecimal destLat,
             final BigDecimal destLon,
-            final LocalDateTime departureAt
+            final Instant departureAt
     ) {
         // 1) 출발지 거리 검사
         final double originKm = LatLonUtil.latLonDistance(originLat, originLon, ride.getOriginLat(), ride.getOriginLon());

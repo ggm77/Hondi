@@ -4,14 +4,14 @@ import com.seohamin.hondi.domain.ride.entity.participant.RideParticipant;
 import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 public class RideParticipantResponseDto {
     private final Long id;
     private final Long rideId;
     private final UserSimpleResponseDto user;
-    private final LocalDateTime createdAt;
+    private final Instant createdAt;
 
     public RideParticipantResponseDto(final RideParticipant rideParticipant) {
         this.id = rideParticipant.getId();

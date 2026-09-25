@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -42,7 +42,7 @@ class RideFlowTest {
         host = testAuthHelper.createUser("방장");
         guest = testAuthHelper.createUser("게스트");
         other = testAuthHelper.createUser("다른사람");
-        departureAt = LocalDateTime.now().plusHours(2).truncatedTo(ChronoUnit.SECONDS).toString();
+        departureAt = Instant.now().plus(2, ChronoUnit.HOURS).truncatedTo(ChronoUnit.SECONDS).toString();
     }
 
     //공항 -> 성산일출봉 모집글 생성

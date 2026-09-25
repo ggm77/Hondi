@@ -15,7 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +84,7 @@ public class RideParticipantService {
     }
 
     private void assertRecruiting(final Ride ride){
-        if(ride.getStatus() != RideStatus.RECRUITING || !ride.getDepartureAt().isAfter(LocalDateTime.now())){
+        if(ride.getStatus() != RideStatus.RECRUITING || !ride.getDepartureAt().isAfter(Instant.now())){
             throw new CustomException(ExceptionCode.RIDE_NOT_RECRUITING);
         }
         if(ride.getCurrentCount() >= ride.getCapacity()){

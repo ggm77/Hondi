@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class Ride extends BaseTimeEntity {
 
     //출발 희망 시간
     @Column(nullable = false)
-    private LocalDateTime departureAt;
+    private Instant departureAt;
 
     //방장 포함 최대 인원
     @Column(nullable = false)
@@ -92,7 +92,7 @@ public class Ride extends BaseTimeEntity {
             final String destName,
             final BigDecimal destLat,
             final BigDecimal destLon,
-            final LocalDateTime departureAt,
+            final Instant departureAt,
             final Integer capacity,
             final String memo
     ){
@@ -116,7 +116,7 @@ public class Ride extends BaseTimeEntity {
     }
 
     //출발 시간 변경
-    public void updateDepartureAt(final LocalDateTime departureAt){
+    public void updateDepartureAt(final Instant departureAt){
         this.departureAt = departureAt;
     }
 

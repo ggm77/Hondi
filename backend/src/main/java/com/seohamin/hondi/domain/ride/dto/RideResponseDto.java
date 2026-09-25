@@ -6,7 +6,7 @@ import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -19,12 +19,12 @@ public class RideResponseDto {
     private final String destName;
     private final BigDecimal destLat;
     private final BigDecimal destLon;
-    private final LocalDateTime departureAt;
+    private final Instant departureAt;
     private final Integer capacity;
     private final Integer currentCount;
     private final RideStatus status;
     private final String memo;
-    private final LocalDateTime createdAt;
+    private final Instant createdAt;
 
     //조회한 유저와 모집글의 관계
     private final RideMyStatus myStatus;

@@ -14,7 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -61,7 +62,7 @@ class RideConcurrencyTest {
                 .host(host)
                 .originName("제주국제공항").originLat(new BigDecimal("33.507000")).originLon(new BigDecimal("126.493000"))
                 .destName("성산일출봉").destLat(new BigDecimal("33.458100")).destLon(new BigDecimal("126.942500"))
-                .departureAt(LocalDateTime.now().plusHours(1))
+                .departureAt(Instant.now().plus(1, ChronoUnit.HOURS))
                 .capacity(2)
                 .build());
 

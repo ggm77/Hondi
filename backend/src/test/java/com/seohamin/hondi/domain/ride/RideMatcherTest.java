@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +26,7 @@ class RideMatcherTest {
     private static final BigDecimal AEWOL_LAT = new BigDecimal("33.463600");
     private static final BigDecimal AEWOL_LON = new BigDecimal("126.331000");
 
-    private static final LocalDateTime BASE_TIME = LocalDateTime.of(2030, 1, 1, 14, 0);
+    private static final Instant BASE_TIME = Instant.parse("2030-01-01T14:00:00Z");
 
     private final RideMatcher rideMatcher = new RideMatcher();
 
@@ -40,7 +40,7 @@ class RideMatcherTest {
             final User host,
             final BigDecimal originLat, final BigDecimal originLon,
             final BigDecimal destLat, final BigDecimal destLon,
-            final LocalDateTime departureAt
+            final Instant departureAt
     ) {
         return Ride.builder()
                 .host(host)
@@ -70,7 +70,7 @@ class RideMatcherTest {
 
     @Test
     void 시간차가_범위를_넘으면_제외() {
-        final Ride r = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(61));
+        final Ride r = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusSeconds(61 * 60));
 
         assertThat(rideMatcher.score(r, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME)).isEmpty();
     }
@@ -79,7 +79,7 @@ class RideMatcherTest {
     void 더_가깝고_시간이_맞는_글이_먼저() {
         final User requester = user(99);
         final Ride exact = ride(user(1), AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME);
-        final Ride near = ride(user(2), NEAR_AIRPORT_LAT, NEAR_AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusMinutes(30));
+        final Ride near = ride(user(2), NEAR_AIRPORT_LAT, NEAR_AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME.plusSeconds(30 * 60));
 
         final List<RideMatchResult> results = rideMatcher.match(
                 List.of(near, exact), requester, AIRPORT_LAT, AIRPORT_LON, SEONGSAN_LAT, SEONGSAN_LON, BASE_TIME
