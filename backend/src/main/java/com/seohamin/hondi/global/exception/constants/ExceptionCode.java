@@ -21,12 +21,14 @@ public enum ExceptionCode {
     CANNOT_JOIN_OWN_RIDE(HttpStatus.BAD_REQUEST, "자신의 모집글에는 참여할 수 없습니다."),
     RIDE_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "이미 참여 중입니다."),
     PARTICIPANT_NOT_EXIST(HttpStatus.BAD_REQUEST, "참여 중인 모집글이 아닙니다."),
+    CHAT_MESSAGE_NOT_EXIST(HttpStatus.BAD_REQUEST, "존재하지 않는 메시지입니다."),
 
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     FORBIDDEN_USER_RESOURCE_ACCESS(HttpStatus.FORBIDDEN, "해당 정보에 접근할 수 없습니다."),
     NOT_RIDE_HOST(HttpStatus.FORBIDDEN, "모집글 작성자만 할 수 있습니다."),
+    NOT_RIDE_MEMBER(HttpStatus.FORBIDDEN, "참여 중인 모집글의 채팅만 이용할 수 있습니다."),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 에러가 발생했습니다."),
     KAKAO_REQUEST_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "카카오와 통신 중 오류가 발생했습니다."),
