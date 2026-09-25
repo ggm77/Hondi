@@ -42,14 +42,6 @@ public class User extends BaseTimeEntity {
     @Column(length = 20, nullable = false)
     private Role role;
 
-    //받은 후기들의 총 점수 //totalReviews로 나눠서 후기 평균 점수 계산
-    @Column(nullable = false)
-    private Integer totalScore;
-
-    //받은 후기의 총 개수
-    @Column(nullable = false)
-    private Integer totalReviews;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserOauth2Accounts> userOauth2Accounts = new ArrayList<>();
 
@@ -59,8 +51,6 @@ public class User extends BaseTimeEntity {
         this.profileImage = userOauth2AccountsRequestDto.getProfileImage();
         this.name = userOauth2AccountsRequestDto.getName();
         this.role = Role.USER;
-        this.totalScore = 0;
-        this.totalReviews = 0;
     }
 
     //닉네임 변경
@@ -71,11 +61,5 @@ public class User extends BaseTimeEntity {
     //프로필 사진 변경
     public void updateProfileImage(final String newProfileImage){
         this.profileImage = newProfileImage;
-    }
-
-    //받은 후기 점수 반영
-    public void addReviewScore(final int score){
-        this.totalScore += score;
-        this.totalReviews += 1;
     }
 }

@@ -14,8 +14,6 @@ public class UserResponseDto {
     private final String profileImage;
     private final String name;
     private final Role role;
-    private final Integer totalScore;
-    private final Integer totalReviews;
     private final Instant createdAt;
 
     @Builder
@@ -25,8 +23,6 @@ public class UserResponseDto {
             final String profileImage,
             final String name,
             final Role role,
-            final Integer totalScore,
-            final Integer totalReviews,
             final Instant createdAt
     ) {
         this.id = id;
@@ -34,8 +30,6 @@ public class UserResponseDto {
         this.profileImage = profileImage;
         this.name = name;
         this.role = role;
-        this.totalScore = totalScore;
-        this.totalReviews = totalReviews;
         this.createdAt = createdAt;
     }
 
@@ -45,8 +39,6 @@ public class UserResponseDto {
         this.profileImage = user.getProfileImage();
         this.name = user.getName();
         this.role = user.getRole();
-        this.totalScore = user.getTotalScore();
-        this.totalReviews = user.getTotalReviews();
         this.createdAt = user.getCreatedAt();
     }
 
@@ -58,8 +50,6 @@ public class UserResponseDto {
                 .profileImage(this.profileImage)
                 .name(null)
                 .role(this.role)
-                .totalScore(this.totalScore)
-                .totalReviews(this.totalReviews)
                 .createdAt(this.createdAt)
                 .build();
     }
