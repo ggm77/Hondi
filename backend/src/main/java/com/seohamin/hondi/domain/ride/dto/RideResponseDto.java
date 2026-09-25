@@ -1,7 +1,6 @@
 package com.seohamin.hondi.domain.ride.dto;
 
 import com.seohamin.hondi.domain.ride.entity.Ride;
-import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
 import lombok.Getter;
 
@@ -22,7 +21,6 @@ public class RideResponseDto {
     private final Instant departureAt;
     private final Integer capacity;
     private final Integer currentCount;
-    private final RideStatus status;
     private final String memo;
     private final Instant createdAt;
 
@@ -48,7 +46,6 @@ public class RideResponseDto {
         this.departureAt = ride.getDepartureAt();
         this.capacity = ride.getCapacity();
         this.currentCount = ride.getCurrentCount();
-        this.status = ride.getDisplayStatus();
         this.memo = ride.getMemo();
         this.createdAt = ride.getCreatedAt();
         this.myStatus = myStatus;

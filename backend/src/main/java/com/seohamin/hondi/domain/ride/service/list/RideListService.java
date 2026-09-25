@@ -4,7 +4,6 @@ import com.seohamin.hondi.domain.ride.dto.RideMyStatus;
 import com.seohamin.hondi.domain.ride.dto.list.RideListItemResponseDto;
 import com.seohamin.hondi.domain.ride.dto.list.RideListResponseDto;
 import com.seohamin.hondi.domain.ride.entity.Ride;
-import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
 import com.seohamin.hondi.domain.ride.service.ServiceAreaValidator;
@@ -85,7 +84,6 @@ public class RideListService {
 
         // 4) DB에서 1차 필터링
         final List<Ride> candidates = rideRepository.findMatchCandidates(
-                RideStatus.RECRUITING,
                 fromAt,
                 toAt,
                 originLat.subtract(latDiff),
@@ -125,7 +123,6 @@ public class RideListService {
         }
 
         final Slice<Ride> rides = rideRepository.findUpcoming(
-                RideStatus.RECRUITING,
                 Instant.now(),
                 PageRequest.of(page, size)
         );

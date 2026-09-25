@@ -14,6 +14,8 @@ public interface RideParticipantRepository extends JpaRepository<RideParticipant
 
     boolean existsByRideIdAndUserId(Long rideId, Long userId);
 
+    void deleteByRideId(Long rideId);
+
     //모집글의 참여자들을 유저 정보와 같이 조회
     @Query("""
         SELECT p FROM RideParticipant p

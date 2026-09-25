@@ -1,7 +1,6 @@
 package com.seohamin.hondi.domain.ride.repository;
 
 import com.seohamin.hondi.domain.ride.entity.Ride;
-import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,9 +19,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         UPDATE Ride r SET r.currentCount = r.currentCount + 1
-        WHERE r.id = :id AND r.status = :status AND r.currentCount < r.capacity
+        WHERE r.id = :id AND r.currentCount < r.capacity
     """)
-    int increaseCountIfAvailable(@Param("id") Long id, @Param("status") RideStatus status);
+    int increaseCountIfAvailable(@Param("id") Long id);
 
     //방장 혼자 남았을 때는 더 줄지 않는 원자적 UPDATE
     @Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -33,14 +32,12 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     @Query("""
         SELECT r FROM Ride r
         JOIN FETCH r.host
-        WHERE r.status = :status
-          AND r.currentCount < r.capacity
+        WHERE r.currentCount < r.capacity
           AND r.departureAt BETWEEN :fromAt AND :toAt
           AND r.originLat BETWEEN :minLat AND :maxLat
           AND r.originLon BETWEEN :minLon AND :maxLon
     """)
     List<Ride> findMatchCandidates(
-            @Param("status") RideStatus status,
             @Param("fromAt") Instant fromAt,
             @Param("toAt") Instant toAt,
             @Param("minLat") BigDecimal minLat,
@@ -54,13 +51,12 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             value = """
                 SELECT r FROM Ride r
                 JOIN FETCH r.host
-                WHERE r.status = :status AND r.currentCount < r.capacity AND r.departureAt > :now
+                WHERE r.currentCount < r.capacity AND r.departureAt > :now
                 ORDER BY r.departureAt ASC
             """,
-            countQuery = "SELECT COUNT(r) FROM Ride r WHERE r.status = :status AND r.currentCount < r.capacity AND r.departureAt > :now"
+            countQuery = "SELECT COUNT(r) FROM Ride r WHERE r.currentCount < r.capacity AND r.departureAt > :now"
     )
     Slice<Ride> findUpcoming(
-            @Param("status") RideStatus status,
             @Param("now") Instant now,
             Pageable pageable
     );

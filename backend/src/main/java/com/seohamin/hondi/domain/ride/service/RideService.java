@@ -4,7 +4,6 @@ import com.seohamin.hondi.domain.ride.dto.RideMyStatus;
 import com.seohamin.hondi.domain.ride.dto.RideRequestDto;
 import com.seohamin.hondi.domain.ride.dto.RideResponseDto;
 import com.seohamin.hondi.domain.ride.entity.Ride;
-import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
 import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
@@ -83,7 +82,7 @@ public class RideService {
 
     /**
      * 모집글을 수정하는 메서드
-     * 방장만 수정 가능하고, 모집 중이거나 인원이 다 찬 상태에서만 가능
+     * 방장만 수정 가능
      * @param rideId 모집글 아이디
      * @param rideRequestDto 수정할 정보 (출발 시간, 최대 인원, 메모)
      * @param userId 요청한 유저 아이디
@@ -99,9 +98,8 @@ public class RideService {
         final Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
-        // 2) 방장인지, 수정 가능한 상태인지 확인
+        // 2) 방장인지 확인
         assertHost(ride, userId);
-        assertEditable(ride);
 
         // 3) 변경할 값만 변경
         if(rideRequestDto.getDepartureAt() != null){
@@ -123,13 +121,12 @@ public class RideService {
     }
 
     /**
-     * 모집글을 취소하는 메서드
-     * 삭제하지 않고 CANCELED 상태로 변경 (참여 기록 유지)
+     * 모집글을 삭제하는 메서드
      * @param rideId 모집글 아이디
      * @param userId 요청한 유저 아이디
      */
     @Transactional
-    public void cancelRide(
+    public void deleteRide(
             final Long rideId,
             final Long userId
     ){
@@ -137,9 +134,9 @@ public class RideService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
         assertHost(ride, userId);
-        assertEditable(ride);
 
-        ride.cancel();
+        rideParticipantRepository.deleteByRideId(rideId);
+        rideRepository.delete(ride);
     }
 
     /**
@@ -162,13 +159,6 @@ public class RideService {
     private void assertHost(final Ride ride, final Long userId){
         if(!ride.isHost(userId)){
             throw new CustomException(ExceptionCode.NOT_RIDE_HOST);
-        }
-    }
-
-    //수정, 취소 가능한 상태인지 확인
-    private void assertEditable(final Ride ride){
-        if(ride.getStatus() != RideStatus.RECRUITING){
-            throw new CustomException(ExceptionCode.RIDE_NOT_EDITABLE);
         }
     }
 

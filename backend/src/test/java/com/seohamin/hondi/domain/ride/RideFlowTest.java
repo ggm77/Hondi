@@ -58,7 +58,6 @@ class RideFlowTest {
                                 }
                                 """.formatted(departureAt, capacity)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("RECRUITING"))
                 .andExpect(jsonPath("$.currentCount").value(1))
                 .andExpect(jsonPath("$.myStatus").value("HOST"))
                 .andReturn().getResponse().getContentAsString();
@@ -115,8 +114,8 @@ class RideFlowTest {
                 .andExpect(jsonPath("$.code").value("CANNOT_JOIN_OWN_RIDE"));
 
         mockMvc.perform(get("/api/v1/ride/" + rideId).header("Authorization", testAuthHelper.bearer(guest)))
-                .andExpect(jsonPath("$.status").value("FULL"))
                 .andExpect(jsonPath("$.currentCount").value(2))
+                .andExpect(jsonPath("$.capacity").value(2))
                 .andExpect(jsonPath("$.myStatus").value("JOINED"))
                 .andExpect(jsonPath("$.members[0].nickname").value("게스트"));
 
@@ -131,7 +130,6 @@ class RideFlowTest {
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/v1/ride/" + rideId).header("Authorization", testAuthHelper.bearer(host)))
-                .andExpect(jsonPath("$.status").value("RECRUITING"))
                 .andExpect(jsonPath("$.currentCount").value(1));
 
         //나갔던 사람도 다시 참여 가능
@@ -145,7 +143,7 @@ class RideFlowTest {
     }
 
     @Test
-    void 방장은_모집글을_수정하고_취소할_수_있다() throws Exception {
+    void 방장은_모집글을_수정하고_삭제할_수_있다() throws Exception {
         final long rideId = createRide(4);
 
         mockMvc.perform(patch("/api/v1/ride/" + rideId)
@@ -163,7 +161,7 @@ class RideFlowTest {
                 .andExpect(status().isNoContent());
 
         join(rideId, guest)
-                .andExpect(jsonPath("$.code").value("RIDE_NOT_RECRUITING"));
+                .andExpect(jsonPath("$.code").value("RIDE_NOT_EXIST"));
     }
 
     @Test

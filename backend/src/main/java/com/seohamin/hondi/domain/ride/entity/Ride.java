@@ -1,6 +1,5 @@
 package com.seohamin.hondi.domain.ride.entity;
 
-import com.seohamin.hondi.domain.ride.entity.participant.RideParticipant;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -11,8 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 동승 모집글 엔티티
@@ -24,7 +21,7 @@ import java.util.List;
 @Table(
         name = "ride",
         indexes = {
-                @Index(name = "idx_ride_status_departure", columnList = "status, departure_at"),
+                @Index(name = "idx_ride_departure_at", columnList = "departure_at"),
                 @Index(name = "idx_ride_origin_lat_lon", columnList = "origin_lat, origin_lon"),
                 @Index(name = "idx_ride_host_id", columnList = "host_id")
         }
@@ -72,16 +69,9 @@ public class Ride extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer currentCount;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private RideStatus status;
-
     //하고 싶은 말 (합류 지점, 짐 여부 등)
     @Column(length = 500, nullable = true)
     private String memo;
-
-    @OneToMany(mappedBy = "ride", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RideParticipant> participants = new ArrayList<>();
 
     @Builder
     public Ride(
@@ -106,7 +96,6 @@ public class Ride extends BaseTimeEntity {
         this.departureAt = departureAt;
         this.capacity = capacity;
         this.currentCount = 1;
-        this.status = RideStatus.RECRUITING;
         this.memo = memo;
     }
 
@@ -128,18 +117,5 @@ public class Ride extends BaseTimeEntity {
     //최대 인원 변경 (검증은 서비스에서 함)
     public void updateCapacity(final int capacity){
         this.capacity = capacity;
-    }
-
-    //모집글 취소
-    public void cancel(){
-        this.status = RideStatus.CANCELED;
-    }
-
-    //화면에 보여줄 상태 (FULL은 DB에 저장 안 하고 인원수로 그때그때 계산)
-    public RideStatus getDisplayStatus(){
-        if(this.status == RideStatus.CANCELED){
-            return RideStatus.CANCELED;
-        }
-        return this.currentCount >= this.capacity ? RideStatus.FULL : RideStatus.RECRUITING;
     }
 }

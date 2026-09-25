@@ -55,16 +55,16 @@ public class RideController {
         return ResponseEntity.ok(rideService.updateRide(id, rideRequestDto, userId));
     }
 
-    //동승 모집글 취소 API
+    //동승 모집글 삭제 API
     @DeleteMapping("/ride/{id}")
-    public ResponseEntity<Void> cancelRide(
+    public ResponseEntity<Void> deleteRide(
             @PathVariable final Long id,
             @AuthenticationPrincipal final String userIdStr
     ){
 
         final Long userId = Long.parseLong(userIdStr);
 
-        rideService.cancelRide(id, userId);
+        rideService.deleteRide(id, userId);
 
         return ResponseEntity.noContent().build();
     }

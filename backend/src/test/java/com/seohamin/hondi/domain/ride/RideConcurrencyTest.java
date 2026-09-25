@@ -1,7 +1,6 @@
 package com.seohamin.hondi.domain.ride;
 
 import com.seohamin.hondi.domain.ride.entity.Ride;
-import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
 import com.seohamin.hondi.domain.ride.service.participant.RideParticipantService;
@@ -99,6 +98,5 @@ class RideConcurrencyTest {
         final Ride result = rideRepository.findById(ride.getId()).orElseThrow();
         assertThat(success.get()).isEqualTo(1);
         assertThat(result.getCurrentCount()).isEqualTo(2);
-        assertThat(result.getDisplayStatus()).isEqualTo(RideStatus.FULL);
     }
 }

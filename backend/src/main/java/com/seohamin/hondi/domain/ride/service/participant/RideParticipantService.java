@@ -2,7 +2,6 @@ package com.seohamin.hondi.domain.ride.service.participant;
 
 import com.seohamin.hondi.domain.ride.dto.participant.RideParticipantResponseDto;
 import com.seohamin.hondi.domain.ride.entity.Ride;
-import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.entity.participant.RideParticipant;
 import com.seohamin.hondi.domain.ride.repository.RideRepository;
 import com.seohamin.hondi.domain.ride.repository.participant.RideParticipantRepository;
@@ -44,7 +43,7 @@ public class RideParticipantService {
         assertRecruiting(ride);
 
         //정원 안에서만 인원을 늘리는 원자적 UPDATE, 락 없이 DB 조건으로 정원을 보장함
-        if(rideRepository.increaseCountIfAvailable(rideId, RideStatus.RECRUITING) == 0){
+        if(rideRepository.increaseCountIfAvailable(rideId) == 0){
             throw new CustomException(ExceptionCode.RIDE_FULL);
         }
 
@@ -69,22 +68,19 @@ public class RideParticipantService {
             final Long rideId,
             final Long userId
     ){
-        final Ride ride = rideRepository.findById(rideId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
+        if(!rideRepository.existsById(rideId)){
+            throw new CustomException(ExceptionCode.RIDE_NOT_EXIST);
+        }
 
         final RideParticipant participant = rideParticipantRepository.findByRideIdAndUserId(rideId, userId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.PARTICIPANT_NOT_EXIST));
-
-        if(ride.getStatus() != RideStatus.RECRUITING){
-            throw new CustomException(ExceptionCode.RIDE_NOT_EDITABLE);
-        }
 
         rideParticipantRepository.delete(participant);
         rideRepository.decreaseCount(rideId);
     }
 
     private void assertRecruiting(final Ride ride){
-        if(ride.getStatus() != RideStatus.RECRUITING || !ride.getDepartureAt().isAfter(Instant.now())){
+        if(!ride.getDepartureAt().isAfter(Instant.now())){
             throw new CustomException(ExceptionCode.RIDE_NOT_RECRUITING);
         }
         if(ride.getCurrentCount() >= ride.getCapacity()){

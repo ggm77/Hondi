@@ -2,7 +2,6 @@ package com.seohamin.hondi.domain.ride.dto.list;
 
 import com.seohamin.hondi.domain.ride.dto.RideMyStatus;
 import com.seohamin.hondi.domain.ride.entity.Ride;
-import com.seohamin.hondi.domain.ride.entity.RideStatus;
 import com.seohamin.hondi.domain.ride.service.matching.RideMatchResult;
 import com.seohamin.hondi.domain.user.dto.UserSimpleResponseDto;
 import lombok.Getter;
@@ -27,7 +26,6 @@ public class RideListItemResponseDto {
     private final Instant departureAt;
     private final Integer capacity;
     private final Integer currentCount;
-    private final RideStatus status;
     private final RideMyStatus myStatus;
 
     private final Double originDistanceKm;
@@ -59,7 +57,6 @@ public class RideListItemResponseDto {
         this.departureAt = ride.getDepartureAt();
         this.capacity = ride.getCapacity();
         this.currentCount = ride.getCurrentCount();
-        this.status = ride.getDisplayStatus();
         this.myStatus = myStatus;
 
         if(result != null){
