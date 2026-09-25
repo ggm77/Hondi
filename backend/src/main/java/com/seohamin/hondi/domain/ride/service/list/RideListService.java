@@ -26,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class RideListService {
 
     /**
      * 출발지, 도착지, 시간이 비슷한 모집글을 점수 높은 순으로 추천하는 메서드
-     * 자기 글은 제외
+     * 자기 글과 이미 참여 중인 글은 제외
      * @param originLat 출발지 위도
      * @param originLon 출발지 경도
      * @param destLat 도착지 위도
@@ -89,7 +90,8 @@ public class RideListService {
                 originLat.subtract(latDiff),
                 originLat.add(latDiff),
                 originLon.subtract(lonDiff),
-                originLon.add(lonDiff)
+                originLon.add(lonDiff),
+                userId
         );
 
         // 5) 거리, 시간으로 점수 매기기
@@ -127,10 +129,15 @@ public class RideListService {
                 PageRequest.of(page, size)
         );
 
+        final Set<Long> joinedRideIds = rides.isEmpty()
+                ? Set.of()
+                : rideParticipantRepository.findJoinedRideIds(userId, rides.stream().map(Ride::getId).toList());
+
         final List<RideListItemResponseDto> items = rides.stream()
                 .map(ride -> new RideListItemResponseDto(
                         ride,
-                        ride.isHost(userId) ? RideMyStatus.HOST : RideMyStatus.NONE
+                        ride.isHost(userId) ? RideMyStatus.HOST
+                                : joinedRideIds.contains(ride.getId()) ? RideMyStatus.JOINED : RideMyStatus.NONE
                 ))
                 .toList();
 

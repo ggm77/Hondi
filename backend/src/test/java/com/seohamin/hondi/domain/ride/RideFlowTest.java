@@ -95,6 +95,41 @@ class RideFlowTest {
     }
 
     @Test
+    void 참여한_글은_목록에_참여중으로_표시되고_추천에서는_제외된다() throws Exception {
+        final long rideId = createRide(4);
+        join(rideId, guest).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/rides").header("Authorization", testAuthHelper.bearer(guest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rides[0].myStatus").value("JOINED"));
+        mockMvc.perform(get("/api/v1/rides").header("Authorization", testAuthHelper.bearer(host)))
+                .andExpect(jsonPath("$.rides[0].myStatus").value("HOST"));
+        mockMvc.perform(get("/api/v1/rides").header("Authorization", testAuthHelper.bearer(other)))
+                .andExpect(jsonPath("$.rides[0].myStatus").value("NONE"));
+
+        mockMvc.perform(get("/api/v1/rides/match")
+                        .header("Authorization", testAuthHelper.bearer(guest))
+                        .param("originLat", "33.507000").param("originLon", "126.493000")
+                        .param("destLat", "33.458100").param("destLon", "126.942500")
+                        .param("departureAt", departureAt).param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rides", hasSize(0)))
+                .andExpect(jsonPath("$.hasNext").value(false));
+
+        mockMvc.perform(delete("/api/v1/ride/" + rideId + "/participant/me")
+                        .header("Authorization", testAuthHelper.bearer(guest)))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/v1/rides/match")
+                        .header("Authorization", testAuthHelper.bearer(guest))
+                        .param("originLat", "33.507000").param("originLon", "126.493000")
+                        .param("destLat", "33.458100").param("destLon", "126.942500")
+                        .param("departureAt", departureAt))
+                .andExpect(jsonPath("$.rides[0].id").value(rideId))
+                .andExpect(jsonPath("$.rides[0].myStatus").value("NONE"));
+    }
+
+    @Test
     void 참여하면_바로_인원이_차고_나가면_다시_모집() throws Exception {
         final long rideId = createRide(2);
 

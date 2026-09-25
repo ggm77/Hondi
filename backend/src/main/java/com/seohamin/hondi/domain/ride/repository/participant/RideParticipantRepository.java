@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface RideParticipantRepository extends JpaRepository<RideParticipant, Long> {
 
@@ -15,6 +16,10 @@ public interface RideParticipantRepository extends JpaRepository<RideParticipant
     boolean existsByRideIdAndUserId(Long rideId, Long userId);
 
     void deleteByRideId(Long rideId);
+
+    //현재 목록에서 참여 중인 모집글 ID를 한 번에 조회
+    @Query("SELECT p.ride.id FROM RideParticipant p WHERE p.user.id = :userId AND p.ride.id IN :rideIds")
+    Set<Long> findJoinedRideIds(@Param("userId") Long userId, @Param("rideIds") List<Long> rideIds);
 
     //모집글의 참여자들을 유저 정보와 같이 조회
     @Query("""

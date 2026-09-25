@@ -1,5 +1,7 @@
 package com.seohamin.hondi.domain.ride.service;
 
+import com.seohamin.hondi.domain.chat.repository.ChatMessageRepository;
+import com.seohamin.hondi.domain.chat.repository.ChatReadStatusRepository;
 import com.seohamin.hondi.domain.ride.dto.RideMyStatus;
 import com.seohamin.hondi.domain.ride.dto.RideRequestDto;
 import com.seohamin.hondi.domain.ride.dto.RideResponseDto;
@@ -23,6 +25,8 @@ public class RideService {
 
     private final RideRepository rideRepository;
     private final RideParticipantRepository rideParticipantRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatReadStatusRepository chatReadStatusRepository;
     private final UserRepository userRepository;
     private final ServiceAreaValidator serviceAreaValidator;
 
@@ -94,8 +98,8 @@ public class RideService {
             final RideRequestDto rideRequestDto,
             final Long userId
     ){
-        // 1) 모집글 조회
-        final Ride ride = rideRepository.findById(rideId)
+        // 1) 참여/탈퇴와 수정이 서로 인원수를 덮어쓰지 않도록 잠금
+        final Ride ride = rideRepository.findByIdForUpdate(rideId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
         // 2) 방장인지 확인
@@ -130,11 +134,13 @@ public class RideService {
             final Long rideId,
             final Long userId
     ){
-        final Ride ride = rideRepository.findById(rideId)
+        final Ride ride = rideRepository.findByIdForUpdate(rideId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
         assertHost(ride, userId);
 
+        chatReadStatusRepository.deleteByRideId(rideId);
+        chatMessageRepository.deleteByRideId(rideId);
         rideParticipantRepository.deleteByRideId(rideId);
         rideRepository.delete(ride);
     }

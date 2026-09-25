@@ -29,7 +29,7 @@ public class RideParticipantService {
             final Long rideId,
             final Long userId
     ){
-        final Ride ride = rideRepository.findById(rideId)
+        final Ride ride = rideRepository.findByIdForUpdate(rideId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
         if(ride.isHost(userId)){
@@ -42,7 +42,7 @@ public class RideParticipantService {
 
         assertRecruiting(ride);
 
-        //정원 안에서만 인원을 늘리는 원자적 UPDATE, 락 없이 DB 조건으로 정원을 보장함
+        //모집글 잠금을 유지한 상태에서 DB 조건으로도 정원을 확인
         if(rideRepository.increaseCountIfAvailable(rideId) == 0){
             throw new CustomException(ExceptionCode.RIDE_FULL);
         }
@@ -68,9 +68,8 @@ public class RideParticipantService {
             final Long rideId,
             final Long userId
     ){
-        if(!rideRepository.existsById(rideId)){
-            throw new CustomException(ExceptionCode.RIDE_NOT_EXIST);
-        }
+        rideRepository.findByIdForUpdate(rideId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
         final RideParticipant participant = rideParticipantRepository.findByRideIdAndUserId(rideId, userId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.PARTICIPANT_NOT_EXIST));

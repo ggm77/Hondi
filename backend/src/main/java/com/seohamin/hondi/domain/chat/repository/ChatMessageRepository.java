@@ -3,6 +3,7 @@ package com.seohamin.hondi.domain.chat.repository;
 import com.seohamin.hondi.domain.chat.entity.ChatMessage;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -10,6 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM ChatMessage m WHERE m.ride.id = :rideId")
+    void deleteByRideId(@Param("rideId") Long rideId);
 
     boolean existsByIdAndRideId(Long id, Long rideId);
 

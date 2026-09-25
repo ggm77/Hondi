@@ -1,9 +1,11 @@
 package com.seohamin.hondi.domain.ride.repository;
 
 import com.seohamin.hondi.domain.ride.entity.Ride;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +17,12 @@ import java.util.Optional;
 
 public interface RideRepository extends JpaRepository<Ride, Long> {
 
-    //정원 안에서만 인원을 늘리는 원자적 UPDATE (락 대신 DB 조건으로 정원 보장)
+    //모집글과 참여/채팅 정보를 변경할 때 먼저 잠그고 트랜잭션 종료까지 유지
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Ride r WHERE r.id = :id")
+    Optional<Ride> findByIdForUpdate(@Param("id") Long id);
+
+    //정원 안에서만 인원을 늘리는 원자적 UPDATE
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         UPDATE Ride r SET r.currentCount = r.currentCount + 1
@@ -36,6 +43,10 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
           AND r.departureAt BETWEEN :fromAt AND :toAt
           AND r.originLat BETWEEN :minLat AND :maxLat
           AND r.originLon BETWEEN :minLon AND :maxLon
+          AND NOT EXISTS (
+              SELECT p.id FROM RideParticipant p
+              WHERE p.ride = r AND p.user.id = :userId
+          )
     """)
     List<Ride> findMatchCandidates(
             @Param("fromAt") Instant fromAt,
@@ -43,7 +54,8 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             @Param("minLat") BigDecimal minLat,
             @Param("maxLat") BigDecimal maxLat,
             @Param("minLon") BigDecimal minLon,
-            @Param("maxLon") BigDecimal maxLon
+            @Param("maxLon") BigDecimal maxLon,
+            @Param("userId") Long userId
     );
 
     //출발 예정인 모집 중인 글을 출발 시간 순으로 조회 (정원 다 찬 글 제외)

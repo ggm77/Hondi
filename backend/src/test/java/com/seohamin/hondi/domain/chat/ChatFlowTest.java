@@ -3,6 +3,7 @@ package com.seohamin.hondi.domain.chat;
 import com.jayway.jsonpath.JsonPath;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.support.TestAuthHelper;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,6 +32,9 @@ class ChatFlowTest {
 
     @Autowired
     private TestAuthHelper testAuthHelper;
+
+    @Autowired
+    private EntityManager entityManager;
 
     private User host;
     private User guest;
@@ -112,6 +117,39 @@ class ChatFlowTest {
                 .andExpect(jsonPath("$.messages[0].sender.nickname").value("방장"))
                 .andExpect(jsonPath("$.messages[1].content").value("네 좋습니다"))
                 .andExpect(jsonPath("$.hasNext").value(false));
+    }
+
+    @Test
+    void 채팅과_읽음_기록이_있는_모집글을_삭제할_수_있다() throws Exception {
+        final long rideId = createRide();
+        join(rideId, guest);
+        final long messageId = sendMessage(rideId, guest, "합류 지점에서 만나요");
+        mockMvc.perform(post("/api/v1/chats/" + rideId + "/read")
+                        .header("Authorization", testAuthHelper.bearer(host))
+                        .param("lastMessageId", String.valueOf(messageId)))
+                .andExpect(status().isNoContent());
+
+        final long otherRideId = createRide();
+        sendMessage(otherRideId, host, "다른 채팅방의 메시지");
+
+        mockMvc.perform(delete("/api/v1/ride/" + rideId)
+                        .header("Authorization", testAuthHelper.bearer(host)))
+                .andExpect(status().isNoContent());
+        //테스트의 외부 트랜잭션에서도 실제 DELETE와 외래키 검사가 실행되도록 강제
+        entityManager.flush();
+        entityManager.clear();
+
+        for (final String entity : new String[]{"ChatMessage", "ChatReadStatus", "RideParticipant"}) {
+            assertThat(entityManager.createQuery("SELECT COUNT(e) FROM " + entity + " e WHERE e.ride.id = :rideId", Long.class)
+                    .setParameter("rideId", rideId).getSingleResult()).isZero();
+        }
+        mockMvc.perform(get("/api/v1/ride/" + rideId).header("Authorization", testAuthHelper.bearer(host)))
+                .andExpect(jsonPath("$.code").value("RIDE_NOT_EXIST"));
+        mockMvc.perform(get("/api/v1/chats/" + otherRideId + "/messages")
+                        .header("Authorization", testAuthHelper.bearer(host)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messages", hasSize(1)))
+                .andExpect(jsonPath("$.messages[0].content").value("다른 채팅방의 메시지"));
     }
 
     @Test

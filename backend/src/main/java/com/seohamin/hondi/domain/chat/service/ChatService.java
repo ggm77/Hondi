@@ -53,7 +53,8 @@ public class ChatService {
             final ChatMessageRequestDto requestDto,
             final Long userId
     ){
-        final Ride ride = getRideAndAssertMember(rideId, userId);
+        //같은 방의 앞선 메시지가 커밋된 후 ID를 발급받아 폴링 누락 방지
+        final Ride ride = getRideForUpdateAndAssertMember(rideId, userId);
 
         final User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_EXIST));
@@ -118,7 +119,8 @@ public class ChatService {
             final Long lastMessageId,
             final Long userId
     ){
-        getRideAndAssertMember(rideId, userId);
+        //최초 읽음 기록 생성과 읽은 위치 갱신을 함께 직렬화
+        getRideForUpdateAndAssertMember(rideId, userId);
 
         if(!chatMessageRepository.existsByIdAndRideId(lastMessageId, rideId)){
             throw new CustomException(ExceptionCode.CHAT_MESSAGE_NOT_EXIST);
@@ -165,11 +167,24 @@ public class ChatService {
         final Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
 
-        if(!ride.isHost(userId) && !rideParticipantRepository.existsByRideIdAndUserId(rideId, userId)){
-            throw new CustomException(ExceptionCode.NOT_RIDE_MEMBER);
-        }
+        assertMember(ride, userId);
 
         return ride;
+    }
+
+    private Ride getRideForUpdateAndAssertMember(final Long rideId, final Long userId){
+        final Ride ride = rideRepository.findByIdForUpdate(rideId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.RIDE_NOT_EXIST));
+
+        assertMember(ride, userId);
+
+        return ride;
+    }
+
+    private void assertMember(final Ride ride, final Long userId){
+        if(!ride.isHost(userId) && !rideParticipantRepository.existsByRideIdAndUserId(ride.getId(), userId)){
+            throw new CustomException(ExceptionCode.NOT_RIDE_MEMBER);
+        }
     }
 
     //채팅방 목록 아이템 DTO 만들기
