@@ -6,7 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class Oauth2ResponseDto {
-    //NOT_REGISTERED면 프론트에서 회원가입(닉네임 입력) 화면으로 이동
     private final Role role;
     private final String accessToken;
     private final String tokenType;

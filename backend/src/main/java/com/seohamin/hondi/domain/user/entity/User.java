@@ -13,17 +13,12 @@ import java.util.List;
 
 /**
  * 유저 정보를 저장하는 엔티티
- * OAuth로 처음 가입하면 NOT_REGISTERED 상태이고, 닉네임을 등록하면 USER가 됨
+ * OAuth로 로그인하면 카카오 닉네임으로 바로 USER로 가입됨
  */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        name = "users",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_users_nickname", columnNames = "nickname")
-        }
-)
+@Table(name = "users")
 public class User extends BaseTimeEntity {
 
     //PK 유저 고유 ID
@@ -31,8 +26,8 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //닉네임 (중복 허용 안됨, 회원가입 완료 전에는 null)
-    @Column(length = 20, nullable = true)
+    //닉네임 (OAuth에서 받아옴, 중복 허용)
+    @Column(length = 255, nullable = false)
     private String nickname;
 
     //프로필 사진 url (OAuth에서 받아옴)
@@ -60,9 +55,10 @@ public class User extends BaseTimeEntity {
 
     //oauth 회원가입용 생성자
     public User(final UserOauth2AccountsRequestDto userOauth2AccountsRequestDto){
+        this.nickname = userOauth2AccountsRequestDto.getNickname();
         this.profileImage = userOauth2AccountsRequestDto.getProfileImage();
         this.name = userOauth2AccountsRequestDto.getName();
-        this.role = Role.NOT_REGISTERED;
+        this.role = Role.USER;
         this.totalScore = 0;
         this.totalReviews = 0;
     }
@@ -75,11 +71,6 @@ public class User extends BaseTimeEntity {
     //프로필 사진 변경
     public void updateProfileImage(final String newProfileImage){
         this.profileImage = newProfileImage;
-    }
-
-    //role을 일반 유저로 변경
-    public void updateRoleToUser(){
-        this.role = Role.USER;
     }
 
     //받은 후기 점수 반영

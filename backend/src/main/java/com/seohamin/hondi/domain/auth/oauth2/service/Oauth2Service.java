@@ -39,17 +39,24 @@ public class Oauth2Service {
         // 2) 유저 정보에서 이메일, 닉네임, 프로필 이미지 추출 (동의 안했으면 null)
         final KakaoUserInfoResponseDto.KakaoAccountDto kakaoAccount = userInfoResponse.getKakao_account();
         final KakaoUserInfoResponseDto.KakaoProfileDto profile = kakaoAccount != null ? kakaoAccount.getProfile() : null;
+        final String nickname = profile != null ? profile.getNickname() : null;
+
+        // 닉네임은 필수 동의 항목이므로 없으면 카카오 쪽 오류로 처리
+        if(nickname == null || nickname.isBlank()){
+            throw new CustomException(ExceptionCode.KAKAO_REQUEST_ERROR);
+        }
 
         // 3) 유저 정보 담긴 DTO 생성 (access token 방식에서는 refresh token을 발급받지 않음)
         final UserOauth2AccountsRequestDto userOauth2AccountsRequestDto = UserOauth2AccountsRequestDto.builder()
                 .provider("kakao")
                 .providerUserId(String.valueOf(userInfoResponse.getId()))
                 .email(kakaoAccount != null ? kakaoAccount.getEmail() : null)
-                .name(profile != null ? profile.getNickname() : null)
+                .nickname(nickname)
+                .name(nickname)
                 .profileImage(profile != null ? profile.getProfile_image_url() : null)
                 .build();
 
-        // 4) 신규 유저면 임시 가입, 기존 유저면 조회
+        // 4) 신규 유저면 바로 가입, 기존 유저면 조회
         final UserOauth2AccountsResponseDto userOauth2AccountsResponseDto =
                 userOauth2Service.upsertOAuthUser(userOauth2AccountsRequestDto);
 

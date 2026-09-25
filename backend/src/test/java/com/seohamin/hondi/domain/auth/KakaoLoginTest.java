@@ -61,60 +61,42 @@ class KakaoLoginTest {
     }
 
     @Test
-    void 카카오_로그인_회원가입_토큰재발급_흐름() throws Exception {
-        // 1) 첫 로그인은 NOT_REGISTERED
+    void 카카오_로그인시_카카오_닉네임으로_바로_가입된다() throws Exception {
+        // 1) 첫 로그인시 바로 USER로 가입되고 카카오 닉네임이 저장됨
         final String loginResponse = kakaoLogin();
         final String accessToken = JsonPath.read(loginResponse, "$.accessToken");
-        final String refreshToken = JsonPath.read(loginResponse, "$.refreshToken");
-        assertThat((String) JsonPath.read(loginResponse, "$.role")).isEqualTo("NOT_REGISTERED");
+        assertThat((String) JsonPath.read(loginResponse, "$.role")).isEqualTo("USER");
 
-        // 2) 회원가입 전에는 다른 API 사용 불가
-        mockMvc.perform(get("/api/v1/user/1").header("Authorization", "Bearer " + accessToken))
-                .andExpect(status().isForbidden());
-
-        // 3) 회원가입 완료
-        mockMvc.perform(post("/api/v1/user")
-                        .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"nickname":"제주여행자"}
-                                """))
+        // 2) 별도 회원가입 절차 없이 바로 다른 API 사용 가능
+        mockMvc.perform(get("/api/v1/user/me").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.role").value("USER"))
-                .andExpect(jsonPath("$.name").value("홍길동"))
-                .andExpect(jsonPath("$.profileImage").value("https://k.kakaocdn.net/p.jpg"));
+                .andExpect(jsonPath("$.nickname").value("홍길동"))
+                .andExpect(jsonPath("$.role").value("USER"));
 
-        // 4) 토큰 재발급하면 USER 권한으로 사용 가능
-        final String refreshed = mockMvc.perform(post("/api/v1/auth/token/refresh")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"refreshToken\":\"" + refreshToken + "\"}"))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        final String userToken = JsonPath.read(refreshed, "$.accessToken");
-
-        mockMvc.perform(get("/api/v1/user/me").header("Authorization", "Bearer " + userToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nickname").value("제주여행자"));
-
-        // 5) 같은 카카오 계정으로 다시 로그인하면 USER
+        // 3) 같은 카카오 계정으로 다시 로그인해도 새로 가입되지 않고 USER 유지
         assertThat((String) JsonPath.read(kakaoLogin(), "$.role")).isEqualTo("USER");
     }
 
     @Test
-    void 회원가입은_한번만_가능() throws Exception {
-        final String accessToken = JsonPath.read(kakaoLogin(), "$.accessToken");
-        final String body = """
-                {"nickname":"중복가입"}
-                """;
+    void 카카오_프로필에_닉네임이_없으면_로그인_실패() throws Exception {
+        final KakaoUserInfoResponseDto userInfo = jsonMapper.readValue("""
+                {
+                  "id": 987654321,
+                  "kakao_account": {
+                    "email": "no-nickname@kakao.com",
+                    "profile": {"profile_image_url": "https://k.kakaocdn.net/p.jpg"}
+                  }
+                }
+                """, KakaoUserInfoResponseDto.class);
+        given(kakaoAuthClient.requestUserInfo(anyString())).willReturn(userInfo);
 
-        mockMvc.perform(post("/api/v1/user").header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(post("/api/v1/user").header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("USER_ALREADY_EXIST"));
+        mockMvc.perform(post("/api/v1/auth/oauth2/kakao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"accessToken":"kakao-access-token"}
+                                """))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.code").value("KAKAO_REQUEST_ERROR"));
     }
 
     @Test

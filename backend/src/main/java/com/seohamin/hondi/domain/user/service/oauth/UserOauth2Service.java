@@ -24,8 +24,7 @@ public class UserOauth2Service {
     private final UserOauth2AccountsRepository userOauth2AccountsRepository;
 
     /**
-     * OAuth로 로그인 할 때 가입 안된 유저면 임시 가입시키는 메서드
-     * 임시 가입된 유저는 NOT_REGISTERED이고, 회원가입 API로 닉네임을 등록해야 함
+     * OAuth로 로그인 할 때 가입 안된 유저면 카카오 닉네임으로 바로 가입시키는 메서드
      * @param userOauth2AccountsRequestDto OAuth에서 받아온 유저 정보
      * @return 연결된 유저 ID와 Role
      */
@@ -56,7 +55,7 @@ public class UserOauth2Service {
             return new UserOauth2AccountsResponseDto(userOauth2Accounts.get());
         }
 
-        // 4) 가입 안되어있으므로 임시 가입
+        // 4) 가입 안되어있으므로 카카오 닉네임으로 바로 가입
         final User savedUser = userRepository.save(new User(userOauth2AccountsRequestDto));
         final UserOauth2Accounts savedUserOauth2Accounts = userOauth2AccountsRepository.save(
                 new UserOauth2Accounts(userOauth2AccountsRequestDto, savedUser)

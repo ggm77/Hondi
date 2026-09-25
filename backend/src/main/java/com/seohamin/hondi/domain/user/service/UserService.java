@@ -2,7 +2,6 @@ package com.seohamin.hondi.domain.user.service;
 
 import com.seohamin.hondi.domain.user.dto.UserRequestDto;
 import com.seohamin.hondi.domain.user.dto.UserResponseDto;
-import com.seohamin.hondi.domain.user.entity.Role;
 import com.seohamin.hondi.domain.user.entity.User;
 import com.seohamin.hondi.domain.user.repository.UserRepository;
 import com.seohamin.hondi.global.exception.CustomException;
@@ -16,43 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-
-    /**
-     * OAuth로 임시 가입된 유저의 회원가입을 완료하는 메서드
-     * 닉네임을 등록하고 role을 USER로 변경
-     * 변경된 role을 반영하려면 프론트에서 토큰 재발급을 해야 함
-     * @param userRequestDto 회원가입 요청 DTO
-     * @param userId oauth에서 등록된 유저 아이디
-     * @return 등록된 유저 정보 DTO
-     */
-    @Transactional
-    public UserResponseDto createUser(
-            final UserRequestDto userRequestDto,
-            final Long userId
-    ){
-        // 1) 유저 조회
-        final User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_EXIST));
-
-        // 2) 이미 회원가입 완료된 유저인지 확인
-        if(user.getRole() != Role.NOT_REGISTERED){
-            throw new CustomException(ExceptionCode.USER_ALREADY_EXIST);
-        }
-
-        // 3) 닉네임 중복 검사
-        if(userRepository.existsByNickname(userRequestDto.getNickname())){
-            throw new CustomException(ExceptionCode.NICKNAME_DUPLICATE);
-        }
-
-        // 4) 정보 등록
-        user.updateNickname(userRequestDto.getNickname());
-        if(userRequestDto.getProfileImage() != null && !userRequestDto.getProfileImage().isBlank()){
-            user.updateProfileImage(userRequestDto.getProfileImage());
-        }
-        user.updateRoleToUser();
-
-        return new UserResponseDto(user);
-    }
 
     /**
      * 유저의 정보를 조회하는 메서드
@@ -101,12 +63,6 @@ public class UserService {
         //변경할 닉네임이 존재하면 변경
         final String nickname = userRequestDto.getNickname();
         if(nickname != null && !nickname.isBlank() && !nickname.equals(user.getNickname())){
-
-            //닉네임 중복 검사
-            if(userRepository.existsByNickname(nickname)){
-                throw new CustomException(ExceptionCode.NICKNAME_DUPLICATE);
-            }
-
             user.updateNickname(nickname);
         }
 

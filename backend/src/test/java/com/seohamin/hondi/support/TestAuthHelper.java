@@ -25,9 +25,8 @@ public class TestAuthHelper {
         final User user = new User(UserOauth2AccountsRequestDto.builder()
                 .provider("kakao")
                 .providerUserId(nickname)
+                .nickname(nickname)
                 .build());
-        user.updateNickname(nickname);
-        user.updateRoleToUser();
         return userRepository.save(user);
     }
 
