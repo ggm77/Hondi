@@ -1,0 +1,65 @@
+package com.seohamin.hondi.domain.user.entity;
+
+import com.seohamin.hondi.domain.user.dto.oauth.UserOauth2AccountsRequestDto;
+import com.seohamin.hondi.domain.user.entity.oauth.UserOauth2Accounts;
+import com.seohamin.hondi.global.entity.BaseTimeEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 유저 정보를 저장하는 엔티티
+ * OAuth로 로그인하면 카카오 닉네임으로 바로 USER로 가입됨
+ */
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "users")
+public class User extends BaseTimeEntity {
+
+    //PK 유저 고유 ID
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    //닉네임 (OAuth에서 받아옴, 중복 허용)
+    @Column(length = 255, nullable = false)
+    private String nickname;
+
+    //프로필 사진 url (OAuth에서 받아옴)
+    @Column(length = 2048, nullable = true)
+    private String profileImage;
+
+    //실제 이름 (OAuth에서 받아옴)
+    @Column(length = 255, nullable = true)
+    private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserOauth2Accounts> userOauth2Accounts = new ArrayList<>();
+
+    //oauth 회원가입용 생성자
+    public User(final UserOauth2AccountsRequestDto userOauth2AccountsRequestDto){
+        this.nickname = userOauth2AccountsRequestDto.getNickname();
+        this.profileImage = userOauth2AccountsRequestDto.getProfileImage();
+        this.name = userOauth2AccountsRequestDto.getName();
+        this.role = Role.USER;
+    }
+
+    //닉네임 변경
+    public void updateNickname(final String newNickname){
+        this.nickname = newNickname;
+    }
+
+    //프로필 사진 변경
+    public void updateProfileImage(final String newProfileImage){
+        this.profileImage = newProfileImage;
+    }
+}
