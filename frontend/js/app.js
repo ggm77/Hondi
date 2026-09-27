@@ -476,8 +476,10 @@ function markRead() {
   if (!last || last.id <= chat.readId) return
   const previous = chat.readId
   chat.readId = last.id
+  renderChatMessages()
   api.markRead(chat.rideId, last.id).catch(() => {
     chat.readId = previous
+    renderChatMessages()
   })
 }
 
@@ -812,7 +814,6 @@ const actions = {
   send: () => sendText(state.draft, true),
   sendQuick: (text) => sendText(text, false),
   loadOlderMessages,
-  callTaxi: () => flash('카카오 T 앱으로 이동해요. 호출과 요금 정산은 직접 진행해 주세요.'),
 
   saveNickname,
 }

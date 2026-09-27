@@ -34,9 +34,6 @@ export function chatScreen(state) {
           <input id="draftInput" class="input" data-bind="draft" data-enter-action="send" maxlength="1000" value="${escapeHtml(state.draft)}" placeholder="메시지 보내기" style="flex:1;min-height:42px">
           <button class="btn btn-primary btn-icon" data-action="send" style="width:42px;height:42px;flex:none" aria-label="보내기">${icons.send()}</button>
         </div>
-        <div style="display:flex;gap:8px;margin-top:9px">
-          <button class="btn btn-secondary" data-action="callTaxi" style="flex:1;font-size:13px">카카오 T로 택시 호출</button>
-        </div>
       </div>
     </div>`
 }
@@ -55,16 +52,18 @@ export function chatMessages({ chat, me }) {
             ${ride.memo ? `${escapeHtml(ride.memo)}<br>` : ''}택시 호출과 요금 나누기는 만나서 직접 진행해 주세요.
           </div>`
     }
-    ${chat.messages.map((m, i) => bubble(m, chat.messages[i - 1], me)).join('')}`
+    ${chat.messages.map((m, i) => bubble(m, chat.messages[i - 1], me, chat.readId)).join('')}`
 }
 
-function bubble(m, prev, me) {
+function bubble(m, prev, me, readId) {
   const mine = me && m.sender.id === me.id
   const showName = !mine && (!prev || prev.sender.id !== m.sender.id)
+  // 상대의 읽은 위치는 서버가 알려주지 않아서, 내가 받은 메시지를 읽었는지만 표시한다
+  const read = !mine && m.id <= readId
   return `
     <div style="display:flex;flex-direction:column;align-items:${mine ? 'flex-end' : 'flex-start'};gap:3px">
       ${showName ? `<div class="text-muted" style="font-size:11px;padding-left:4px">${escapeHtml(m.sender.nickname)}</div>` : ''}
       <div style="max-width:78%;padding:10px 14px;border-radius:${mine ? '20px 20px 6px 20px' : '20px 20px 20px 6px'};background:${mine ? 'var(--color-accent)' : 'var(--color-surface)'};color:${mine ? 'var(--color-bg)' : 'var(--color-text)'};font-size:13.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere">${escapeHtml(m.content)}</div>
-      <div class="text-muted" style="font-size:10px">${escapeHtml(formatMessageTime(m.createdAt))}</div>
+      <div class="text-muted" style="font-size:10px">${read ? '<span style="color:var(--color-accent);font-weight:600">읽음</span> · ' : ''}${escapeHtml(formatMessageTime(m.createdAt))}</div>
     </div>`
 }
