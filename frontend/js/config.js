@@ -8,4 +8,4 @@ export const KAKAO_CLIENT_ID = '241dbd5a81459a9e0e283c797f086bd9'
 export const KAKAO_REDIRECT_URI = location.origin + location.pathname
 
 // 채팅 새 메시지 폴링 간격 (ms)
-export const CHAT_POLL_INTERVAL = 3000
+export const CHAT_POLL_INTERVAL = 1000
