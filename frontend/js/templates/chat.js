@@ -35,7 +35,7 @@ export function chatScreen(state) {
           <button class="btn btn-primary btn-icon" data-action="send" style="width:42px;height:42px;flex:none" aria-label="보내기">${icons.send()}</button>
         </div>
         <div style="display:flex;gap:8px;margin-top:9px">
-          <button class="btn btn-secondary" data-action="callTaxi" style="flex:1;font-size:13px">카카오 T로 택시 호출</button>
+          <button class="btn btn-secondary" data-action="callTaxi" style="flex:1;font-size:12px;padding:6px 12px">카카오 T로 택시 호출</button>
         </div>
       </div>
     </div>`
