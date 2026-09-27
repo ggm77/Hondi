@@ -76,13 +76,16 @@ export function emptyBlock(text, button = '') {
     </div>`
 }
 
-// 출발지·목적지 선택. allowCurrent면 "현재 위치" 항목을 맨 위에 둔다
+// 출발지·목적지 선택. allowCurrent면 "현재 위치" 항목을 둔다
+// 목록에 없는 장소(현재 위치·지도에서 고른 곳)가 선택돼 있으면 맨 위에 그 이름을 보여준다
 export function placeSelect(action, selected, allowCurrent) {
   const index = PLACES.findIndex((p) => p.name === selected?.name && p.lat === selected.lat && p.lon === selected.lon)
-  const isCurrent = Boolean(selected) && index === -1
+  const isCustom = Boolean(selected) && index === -1
   return `
     <select class="input" data-action="${action}">
-      ${allowCurrent ? `<option value="current" ${isCurrent ? 'selected' : ''}>${isCurrent ? escapeHtml(selected.name) : '현재 위치 사용하기'}</option>` : ''}
+      ${isCustom ? `<option value="custom" selected>${escapeHtml(selected.name)}</option>` : ''}
+      ${allowCurrent ? '<option value="current">현재 위치 사용하기</option>' : ''}
+      <option value="map">지도에서 보기</option>
       ${PLACES.map((p, i) => `<option value="${i}" ${i === index ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('')}
     </select>`
 }

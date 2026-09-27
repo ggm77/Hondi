@@ -1,7 +1,7 @@
 import { api, tokens, setUnauthorizedHandler } from './api.js'
 import { startKakaoLogin, takeKakaoCallback, completeKakaoLogin } from './auth.js'
 import { CHAT_POLL_INTERVAL } from './config.js'
-import { PLACES, isInServiceArea } from './places.js'
+import { PLACES, isInServiceArea, nearestPlace, describePoint } from './places.js'
 import { toDateInput, toTimeInput, fromInputs, defaultDeparture, formatDeparture } from './format.js'
 import { bottomTabs, toast, confirmSheet } from './templates/shared.js'
 import { onboardingScreen } from './templates/onboarding.js'
@@ -12,10 +12,12 @@ import { mapScreen, mapPanel } from './templates/map.js'
 import { rideScreen } from './templates/ride.js'
 import { chatsScreen } from './templates/chats.js'
 import { chatScreen, chatMessages } from './templates/chat.js'
+import { placePicker, pickerBar } from './templates/picker.js'
 import { profileScreen } from './templates/profile.js'
 
 const appEl = document.getElementById('app')
 const overlayEl = document.getElementById('overlay')
+const pickerEl = document.getElementById('picker')
 
 const initialDeparture = defaultDeparture()
 
@@ -73,6 +75,7 @@ let navSeq = 0 // 화면을 옮기면 늦게 도착한 이전 화면의 응답�
 let chatTimer = null
 let chatPolling = false
 let chatScrollMode = null // 다음 채팅 렌더 후 스크롤: 'bottom' | 'keep'
+let picker = null // 지도에서 장소 고르는 중: { target, key, point, seq }
 
 // ── 렌더링 ────────────────────────────────────────────
 
@@ -190,6 +193,7 @@ function go(screen, param = null) {
   if (screen === 'onboarding' && tokens.access && !state.authPending) screen = 'home'
 
   stopChat()
+  closePicker(false)
   navSeq++
   state.from = state.screen === 'onboarding' ? null : { screen: state.screen, param: state.param }
   Object.assign(state, { screen, param, sheet: null, busy: false })
@@ -542,8 +546,14 @@ function sendRidesToMap(frame) {
 }
 
 window.addEventListener('message', (e) => {
+  if (e.origin !== location.origin) return
+  const pickerFrame = document.getElementById('pickerFrame')
+  if (picker && pickerFrame && e.source === pickerFrame.contentWindow) {
+    if (e.data?.type === 'hondi-map-pick') pickOnMap(e.data.lat, e.data.lon)
+    return
+  }
   const frame = document.getElementById('mapFrame')
-  if (e.origin !== location.origin || !frame || e.source !== frame.contentWindow) return
+  if (!frame || e.source !== frame.contentWindow) return
   if (e.data?.type === 'hondi-map-ready') sendRidesToMap(frame)
   if (e.data?.type === 'hondi-map-open') go('ride', Number(e.data.id))
 })
@@ -554,17 +564,73 @@ function samePlace(a, b) {
   return a.lat === b.lat && a.lon === b.lon
 }
 
-function nearestPlace(lat, lon) {
-  const dist = (p) => (p.lat - lat) ** 2 + ((p.lon - lon) * Math.cos((lat * Math.PI) / 180)) ** 2
-  return PLACES.reduce((best, p) => (dist(p) < dist(best) ? p : best))
-}
-
 function pickPlace(target, key, value) {
   if (value === 'current') {
     useCurrentLocation(target)
     return
   }
+  if (value === 'map') {
+    openPicker(target, key)
+    return
+  }
+  if (value === 'custom') return
   target[key] = PLACES[Number(value)]
+}
+
+// ── 지도에서 장소 고르기 ─────────────────────────────
+// 목록에 없는 곳도 이름과 좌표를 그대로 모집글·검색 API에 보낸다
+
+function openPicker(target, key) {
+  const current = target[key]
+  // 이미 지도·현재 위치로 고른 곳이면 그 위치에서 시작한다
+  const isCustom = current && !PLACES.includes(current)
+  picker = { target, key, point: isCustom ? current : null, seq: 0 }
+  const origin = key === 'origin'
+  pickerEl.innerHTML = placePicker({
+    title: origin ? '출발지를 지도에서 찍어 주세요' : '목적지를 지도에서 찍어 주세요',
+    pinLabel: origin ? '출발' : '도착',
+    point: picker.point,
+  })
+}
+
+async function pickOnMap(lat, lon) {
+  lat = Number(Number(lat).toFixed(6))
+  lon = Number(Number(lon).toFixed(6))
+  const current = picker
+  const seq = ++current.seq
+  current.point = null
+  if (!isInServiceArea(lat, lon)) {
+    flash('서비스 지역(제주도) 안에서 골라 주세요.')
+    renderPickerBar()
+    return
+  }
+  renderPickerBar('위치 이름을 확인하고 있어요…')
+  const name = await describePoint(lat, lon)
+  // 그사이 다른 곳을 찍었거나 닫았으면 버린다
+  if (picker !== current || seq !== current.seq) return
+  if (name) current.point = { name: name.slice(0, 100), lat, lon }
+  else flash('바다는 고를 수 없어요. 육지를 눌러 주세요.')
+  renderPickerBar()
+}
+
+function renderPickerBar(hint) {
+  document.getElementById('pickerBar').innerHTML = pickerBar(picker.point, hint)
+}
+
+// 고르지 않고 닫아도 다시 그려서 select를 원래 선택으로 되돌린다
+function closePicker(rerender = true) {
+  if (!picker) return
+  picker = null
+  pickerEl.innerHTML = ''
+  if (rerender) render()
+}
+
+function confirmPicker() {
+  if (!picker?.point) return
+  const { target, key, point } = picker
+  target[key] = point
+  closePicker()
+  flash(key === 'origin' ? '출발지를 정했어요.' : '목적지를 정했어요.')
 }
 
 // 모집글 출발지 이름으로도 쓰이므로 가장 가까운 장소 이름을 붙인다
@@ -582,7 +648,7 @@ function useCurrentLocation(target) {
       if (!isInServiceArea(lat, lon)) {
         flash('현재 위치가 서비스 지역(제주도) 밖이에요.')
       } else {
-        target.origin = { name: `${nearestPlace(lat, lon).name} 부근`, lat, lon }
+        target.origin = { name: `${nearestPlace(lat, lon).place.name} 부근`, lat, lon }
         flash('현재 위치를 출발지로 정했어요.')
       }
       render()
@@ -778,6 +844,8 @@ const actions = {
   setSearchDest: (value) => pickPlace(state.search, 'dest', value),
   setFormOrigin: (value) => pickPlace(state.form, 'origin', value),
   setFormDest: (value) => pickPlace(state.form, 'dest', value),
+  closePicker: () => closePicker(),
+  confirmPicker,
   incCapacity: () => {
     state.form.capacity = Math.min(6, state.form.capacity + 1)
     render()

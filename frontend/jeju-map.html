@@ -21,6 +21,7 @@
   .pin-sage { background: #7a8a5e; color: #f5ead8; }
   .pin-quiet { background: #f9f4ed; color: #645c50; box-shadow: 0 1px 2px rgba(46,43,37,.14); cursor: default; }
   .pin i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .8; }
+  .picking .leaflet-container { cursor: crosshair; }
 </style>
 </head>
 <body>
@@ -29,7 +30,12 @@
   // 부모 화면(js/app.js)과 postMessage로 통신한다
   // 받는 메시지: { type: 'hondi-map-rides', rides: [{ id, originLat, originLon, destLat, destLon, label }] }
   // 보내는 메시지: { type: 'hondi-map-ready' }, { type: 'hondi-map-open', id }
-  const map = L.map('map', { center: [33.385, 126.545], zoom: 9, zoomControl: false, attributionControl: true });
+  // ?mode=pick이면 위치 고르기 모드: 지도를 누르면 { type: 'hondi-map-pick', lat, lon }을 보낸다
+  //   (lat, lon: 처음 표시할 위치, label: 핀 글자)
+  const params = new URLSearchParams(location.search);
+  const picking = params.get('mode') === 'pick';
+  // 고르기 모드는 제주도가 화면을 꽉 채우도록 줌을 0.25 단위로 맞춘다
+  const map = L.map('map', { center: [33.385, 126.545], zoom: 9, zoomSnap: picking ? 0.25 : 1, zoomControl: false, attributionControl: true });
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors', maxZoom: 18
   }).addTo(map);
@@ -60,6 +66,31 @@
       points.push(origin, dest);
     });
     if (points.length) map.fitBounds(points, { padding: [48, 48], maxZoom: 12 });
+  }
+
+  if (picking) {
+    document.body.classList.add('picking');
+    // 서비스 지역(위도 33.0~34.1, 경도 126.0~127.1) 밖으로 멀리 끌려가지 않게 한다
+    map.setMaxBounds(L.latLngBounds([33.0, 126.0], [34.1, 127.1]).pad(0.1));
+
+    let marker = null;
+    const place = (latlng) => {
+      if (marker) marker.setLatLng(latlng);
+      else marker = label(latlng, params.get('label') || '여기', 'pin-accent').addTo(map);
+    };
+
+    if (params.has('lat') && params.has('lon')) {
+      const start = [Number(params.get('lat')), Number(params.get('lon'))];
+      place(start);
+      map.setView(start, 13);
+    } else {
+      map.fitBounds([[33.19, 126.15], [33.57, 126.97]]);
+    }
+
+    map.on('click', (e) => {
+      place(e.latlng);
+      parent.postMessage({ type: 'hondi-map-pick', lat: e.latlng.lat, lon: e.latlng.lng }, location.origin);
+    });
   }
 
   window.addEventListener('message', (e) => {
