@@ -1,4 +1,6 @@
-export function onboardingScreen() {
+import { icons } from '../icons.js'
+
+export function onboardingScreen(state) {
   return `
     <div class="onboarding">
       <div class="onboarding-sun"></div>
@@ -31,8 +33,9 @@ export function onboardingScreen() {
       </div>
 
       <div class="onboarding-cta" style="position:relative;display:flex;flex-direction:column;gap:8px;z-index:2">
-        <button class="btn btn-primary btn-block" data-action="goHome" style="font-size:15px;padding:13px">휴대폰 번호로 시작하기</button>
-        <button class="btn btn-ghost btn-block" data-action="goHome" style="font-size:14px">먼저 둘러보기</button>
+        <button class="btn btn-kakao btn-block" data-action="loginKakao" style="font-size:15px;padding:13px" ${state.authPending ? 'disabled' : ''}>
+          ${state.authPending ? '로그인하는 중…' : `${icons.kakao()}카카오로 시작하기`}
+        </button>
       </div>
 
       <div class="onboarding-hills">

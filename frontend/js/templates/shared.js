@@ -1,20 +1,21 @@
 import { icons, escapeHtml } from '../icons.js'
-import { reportReasonLabels } from '../data.js'
+import { PLACES } from '../places.js'
+import { formatDeparture, rideStatusLabel } from '../format.js'
 
-export function screenHeader(title, backAction, tight) {
+export function screenHeader(title, backAction, tight, backArg) {
   return `
     <div style="display:flex;align-items:center;gap:10px;padding:${tight ? '18px 20px 6px' : '18px 20px 10px'}">
-      <button class="btn btn-icon btn-secondary" data-action="${backAction}" aria-label="뒤로">${icons.back()}</button>
+      <button class="btn btn-icon btn-secondary" data-action="${backAction}" ${backArg !== undefined ? `data-arg="${escapeHtml(backArg)}"` : ''} aria-label="뒤로">${icons.back()}</button>
       <h4 style="margin:0;font-size:19px">${escapeHtml(title)}</h4>
     </div>`
 }
 
 const TABS = [
-  { key: 'home', label: '홈', action: 'goHome', icon: 'tabHome' },
-  { key: 'map', label: '지도', action: 'goMap', icon: 'tabMap' },
-  { key: 'compose', label: '모집', action: 'goCompose', icon: 'tabCompose' },
-  { key: 'chat', label: '채팅', action: 'goChat', icon: 'tabChat' },
-  { key: 'profile', label: '나', action: 'goProfile', icon: 'tabProfile' },
+  { keys: ['home', 'matches', 'ride'], label: '홈', action: 'goHome', icon: 'tabHome' },
+  { keys: ['map'], label: '지도', action: 'goMap', icon: 'tabMap' },
+  { keys: ['compose', 'edit'], label: '모집', action: 'goCompose', icon: 'tabCompose' },
+  { keys: ['chats', 'chat'], label: '채팅', action: 'goChats', icon: 'tabChat' },
+  { keys: ['profile'], label: '나', action: 'goProfile', icon: 'tabProfile' },
 ]
 
 export function bottomTabs(screen) {
@@ -23,7 +24,7 @@ export function bottomTabs(screen) {
       <div class="tabbar-brand">혼디 가게</div>
       ${TABS.map(
         (t) => `
-        <button class="tabbar-btn${screen === t.key ? ' active' : ''}" data-action="${t.action}">
+        <button class="tabbar-btn${t.keys.includes(screen) ? ' active' : ''}" data-action="${t.action}">
           ${icons[t.icon]()}
           ${t.label}
         </button>`,
@@ -36,56 +37,90 @@ export function toast(message) {
   return `<div class="toast">${escapeHtml(message)}</div>`
 }
 
-export function reportSheet(state) {
-  const { reportReason, block, reportTarget } = state
+export function confirmSheet({ title, desc, confirmLabel }) {
   return `
     <div class="sheet-backdrop">
       <div class="sheet">
         <div class="sheet-grip"></div>
         <div>
-          <h4 style="margin:0 0 3px;font-size:19px">${escapeHtml(reportTarget)}님을 신고할까요?</h4>
-          <div class="text-muted" style="font-size:12.5px;line-height:1.5">접수되면 해당 모집글은 자동으로 숨겨지고, 운영팀이 24시간 안에 확인해요.</div>
+          <h4 style="margin:0 0 3px;font-size:19px">${escapeHtml(title)}</h4>
+          <div class="text-muted" style="font-size:12.5px;line-height:1.5">${escapeHtml(desc)}</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:3px">
-          ${reportReasonLabels
-            .map(
-              (t, i) => `
-            <label class="radio" style="padding:9px 2px;gap:11px">
-              <input type="radio" name="hondi-reason" data-action="pickReason" data-arg="${i}" ${reportReason === i ? 'checked' : ''}>
-              <span class="dot"></span>
-              <span style="font-size:13.5px">${escapeHtml(t)}</span>
-            </label>`,
-            )
-            .join('')}
-        </div>
-        <label class="radio" style="gap:11px;padding:12px 15px;border-radius:22px;background:var(--color-surface)">
-          <input type="checkbox" data-action="toggleBlock" style="position:absolute;opacity:0;width:0;height:0" ${block ? 'checked' : ''}>
-          <span class="dot" style="border-radius:6px;background:${block ? 'var(--color-accent)' : 'transparent'};border-color:${block ? 'var(--color-accent)' : 'var(--color-divider)'};box-shadow:${block ? 'inset 0 0 0 3px var(--color-bg)' : 'none'}"></span>
-          <span style="font-size:13.5px">이 사용자를 차단하고 다시 추천받지 않기</span>
-        </label>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-secondary" data-action="closeSheet" style="flex:1">취소</button>
-          <button class="btn btn-primary" data-action="submitReport" style="flex:1" ${reportReason === null ? 'disabled' : ''}>신고 접수</button>
+          <button class="btn btn-secondary" data-action="closeSheet" style="flex:1">닫기</button>
+          <button class="btn btn-primary" data-action="confirmSheet" style="flex:1">${escapeHtml(confirmLabel)}</button>
         </div>
       </div>
     </div>`
 }
 
-export function blockedSheet() {
+const AVATAR_COLORS = ['var(--color-accent)', 'var(--color-accent-2)', 'var(--color-neutral-500)']
+
+export function avatar(user, size = 38) {
+  const style = `width:${size}px;height:${size}px;font-size:${Math.round(size * 0.4)}px;background:${AVATAR_COLORS[user.id % AVATAR_COLORS.length]}`
+  if (user.profileImage) {
+    return `<div class="avatar" style="${style}"><img src="${escapeHtml(user.profileImage)}" alt="" referrerpolicy="no-referrer"></div>`
+  }
+  return `<div class="avatar" style="${style}">${escapeHtml([...user.nickname][0] ?? '?')}</div>`
+}
+
+export function loadingBlock(text = '불러오는 중…') {
+  return `<div class="text-muted" style="padding:28px 0;text-align:center;font-size:13px">${escapeHtml(text)}</div>`
+}
+
+export function emptyBlock(text, button = '') {
   return `
-    <div class="sheet-backdrop">
-      <div class="sheet">
-        <div class="sheet-grip"></div>
-        <h4 style="margin:0;font-size:19px">차단한 사용자</h4>
-        <div class="card" style="gap:10px;padding:15px;flex-direction:row;align-items:center">
-          <div class="avatar" style="width:38px;height:38px;background:var(--color-neutral-400)">ㅈ</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:600">지우</div>
-            <div class="text-muted" style="font-size:11.5px">약속 시간 미준수 · 3월 신고</div>
-          </div>
-          <button class="btn btn-secondary" data-action="unblock" style="font-size:12px">차단 해제</button>
-        </div>
-        <button class="btn btn-secondary btn-block" data-action="closeSheet">닫기</button>
+    <div class="card" style="gap:12px;padding:24px 18px;align-items:center;text-align:center">
+      <div class="text-muted" style="font-size:13px;line-height:1.5">${escapeHtml(text)}</div>
+      ${button}
+    </div>`
+}
+
+// 출발지·목적지 선택. allowCurrent면 "현재 위치" 항목을 맨 위에 둔다
+export function placeSelect(action, selected, allowCurrent) {
+  const index = PLACES.findIndex((p) => p.name === selected?.name && p.lat === selected.lat && p.lon === selected.lon)
+  const isCurrent = Boolean(selected) && index === -1
+  return `
+    <select class="input" data-action="${action}">
+      ${allowCurrent ? `<option value="current" ${isCurrent ? 'selected' : ''}>${isCurrent ? escapeHtml(selected.name) : '현재 위치 사용하기'}</option>` : ''}
+      ${PLACES.map((p, i) => `<option value="${i}" ${i === index ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('')}
+    </select>`
+}
+
+export function routeLine(originName, destName, bold = true) {
+  const weight = bold ? 'font-weight:600' : ''
+  return `
+    <div style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="flex:none;width:9px;height:9px;border-radius:50%;border:2.75px solid var(--color-accent)"></div>
+        <div style="flex:1;font-size:14px;${weight}">${escapeHtml(originName)}</div>
       </div>
+      <div style="margin:3px 0 3px 3px;width:2px;height:14px;background-image:radial-gradient(circle, var(--color-neutral-400) 1px, transparent 1.2px);background-size:2px 5px"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        ${icons.pin()}
+        <div style="flex:1;font-size:14px;${weight}">${escapeHtml(destName)}</div>
+      </div>
+    </div>`
+}
+
+export function myStatusTag(myStatus) {
+  if (myStatus === 'HOST') return '<span class="tag tag-accent-2">내 모집글</span>'
+  if (myStatus === 'JOINED') return '<span class="tag tag-accent-2">참여 중</span>'
+  return ''
+}
+
+// 모집글 목록 카드 (홈, 지도, 내 동승 공용)
+export function rideCard(ride, extra = '') {
+  return `
+    <div class="card elev-sm" style="gap:9px;padding:16px;cursor:pointer" data-action="goRide" data-arg="${ride.id}">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span class="tag tag-accent">${escapeHtml(formatDeparture(ride.departureAt))}</span>
+        <span class="tag tag-neutral">${escapeHtml(rideStatusLabel(ride))}</span>
+        ${myStatusTag(ride.myStatus)}
+        <span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--color-accent-2-700)">${ride.currentCount}/${ride.capacity}명</span>
+      </div>
+      <div style="font-size:15px;font-weight:600;line-height:1.35">${escapeHtml(ride.originName)} → ${escapeHtml(ride.destName)}</div>
+      ${extra}
+      <div class="card-meta">${avatar(ride.host, 18)}${escapeHtml(ride.host.nickname)}</div>
     </div>`
 }
