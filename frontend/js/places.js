@@ -30,3 +30,42 @@ export const PLACES = [
 export function isInServiceArea(lat, lon) {
   return lat >= 33.0 && lat <= 34.1 && lon >= 126.0 && lon <= 127.1
 }
+
+// 두 지점 사이 대략의 거리 (km, 제주 범위에서는 평면 근사로 충분)
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const dy = (lat2 - lat1) * 111
+  const dx = (lon2 - lon1) * 111 * Math.cos((lat1 * Math.PI) / 180)
+  return Math.hypot(dx, dy)
+}
+
+export function nearestPlace(lat, lon) {
+  const dist = (p) => distanceKm(lat, lon, p.lat, p.lon)
+  const place = PLACES.reduce((best, p) => (dist(p) < dist(best) ? p : best))
+  return { place, km: dist(place) }
+}
+
+const NEAR_KM = 0.7
+
+// 지도에서 고른 지점의 이름. 주요 장소 가까이면 "OO 부근", 아니면 OpenStreetMap 역지오코딩 주소
+// 바다처럼 읍·면·동 주소가 없는 곳은 null
+export async function describePoint(lat, lon) {
+  const { place, km } = nearestPlace(lat, lon)
+  if (km <= NEAR_KM) return `${place.name} 부근`
+
+  const url = new URL('https://nominatim.openstreetmap.org/reverse')
+  url.search = new URLSearchParams({ format: 'jsonv2', 'accept-language': 'ko', zoom: 18, lat, lon })
+  let address
+  try {
+    const res = await fetch(url)
+    address = res.ok ? (await res.json()).address : undefined
+  } catch {
+    address = undefined
+  }
+  // 주소를 못 받으면 가장 가까운 장소와 거리로 대신한다
+  if (address === undefined) return `${place.name}에서 ${km.toFixed(1)}km`
+
+  const area = address.town ?? address.city_district ?? address.suburb
+  const detail = address.village ?? address.road
+  if (!area && !detail) return null
+  return [address.city, area, detail].filter(Boolean).join(' ')
+}
